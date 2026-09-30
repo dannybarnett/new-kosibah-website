@@ -1,0 +1,202 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Kosibah 2026 Rebuild Plan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Jost:wght@300;400;500&display=swap">
+<style>
+/* Layout: one reading column, editorial serif headings, tabular sections. */
+:root {
+  --bg: #F6F5F1; --fg: #141413; --muted: #625E58; --rule: #D9D5CC; --panel: #EDEAE3; --accent: #6E1E2B; --accent-fg: #F6F5F1;
+  --display: 'Bodoni Moda', Georgia, 'Times New Roman', serif; --body: 'Jost', 'Helvetica Neue', Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #171614; --fg: #EDEAE3; --muted: #A39E95; --rule: #37342F; --panel: #221F1C; --accent: #C9707E; --accent-fg: #171614; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #171614; --fg: #EDEAE3; --muted: #A39E95; --rule: #37342F; --panel: #221F1C; --accent: #C9707E; --accent-fg: #171614; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-weight: 300; font-size: 16px; line-height: 1.6; margin: 0; }
+.wrap { max-width: 760px; margin: 0 auto; padding-block: 56px 96px; padding-inline: 20px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.1; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(38px, 7vw, 56px); letter-spacing: -.01em; }
+h2 { font-size: 30px; margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--fg); }
+h3 { font-size: 21px; margin-top: 32px; }
+p { margin: 14px 0 0; max-width: 62ch; }
+.eyebrow { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+.lede { font-size: 19px; line-height: 1.5; margin-top: 18px; max-width: 58ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 22px; font-size: 13px; color: var(--muted); }
+.summary { margin-top: 36px; padding: 24px; background: var(--panel); display: flex; flex-direction: column; gap: 10px; }
+.summary strong { font-weight: 500; }
+ul, ol { padding-left: 20px; margin: 12px 0 0; }
+li { margin-top: 8px; max-width: 62ch; }
+li strong, p strong { font-weight: 500; }
+table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 14.5px; }
+th { text-align: left; font-weight: 400; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); padding: 0 12px 10px 0; border-bottom: 1px solid var(--fg); vertical-align: bottom; }
+td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+td:first-child { font-weight: 400; white-space: nowrap; }
+.scroll { overflow-x: auto; }
+.callout { margin-top: 20px; padding: 18px 20px; border: 1px solid var(--accent); display: flex; flex-direction: column; gap: 6px; }
+.callout .eyebrow { color: var(--accent); }
+.phase { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--rule); }
+.phase .when { font-family: var(--display); font-size: 20px; line-height: 1.2; }
+.phase h3 { margin-top: 0; font-size: 19px; }
+.phase p, .phase li { font-size: 15px; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid currentColor; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.btn { display: inline-flex; align-items: center; height: 48px; padding: 0 22px; margin-top: 18px; background: var(--accent); color: var(--accent-fg); border: 0; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; font-weight: 400; }
+.small { font-size: 13.5px; color: var(--muted); }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; }
+@media (max-width: 480px) { .phase { grid-template-columns: 1fr; gap: 6px; } h2 { font-size: 27px; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">kosibah.com · rebuild plan</div>
+  <h1 style="margin-top: 14px">A smaller site whose only job is the consultation.</h1>
+  <p class="lede">Rebuild kosibah.com as a six-page, mobile-first editorial site that shows the haute couture process and its outcomes, and routes every visitor, from the site, Instagram or a Meta ad, into one booking flow.</p>
+  <div class="meta"><span>Prepared for Danny Barnett and Yemi Osunkoya</span><span>28 September 2026</span><span>Status: proposal, awaiting decisions in section 10</span></div>
+
+  <div class="summary">
+    <div class="eyebrow">In short</div>
+    <div><strong>The current site's booking form is dead.</strong> The bookings page shows a plugin error and takes no appointments. That is the first thing to fix, this week, before any rebuild.</div>
+    <div><strong>Cut nine pages to six.</strong> Home, The Atelier, Gowns, Real Brides, Yemi, Book. Collections, Mother of the Bride, Press and Contact fold into those. The blog is retired.</div>
+    <div><strong>Design for the phone first.</strong> Portrait photography, one column, a booking call to action on every page. A desktop layout is derived from the mobile one, not the other way round.</div>
+    <div><strong>One booking flow, reachable from anywhere.</strong> A standalone page at kosibah.com/book with a short qualifying form and then a live calendar. It doubles as the landing page for the Instagram bio link and Meta lead ads, with events reported back to Meta.</div>
+    <div><strong>Build it as a static site.</strong> Astro with a git-based editor, hosted on Cloudflare. No WordPress, no plugins to expire, near-zero running cost, and a page weight a tenth of today's.</div>
+    <div><a href="https://claude.ai/artifact/PT4DfhGoCgMxf6K9G3jDRs">Open the site structure and page layouts in Claude Design</a></div>
+  </div>
+
+  <h2>1. What the current site does today</h2>
+  <p>Reviewed on 28 September 2026 at desktop and phone widths.</p>
+  <div class="scroll"><table>
+    <tr><th>Area</th><th>Finding</th><th>Effect on bookings</th></tr>
+    <tr><td>Bookings page</td><td>Shows "All Connections Have Expired" from the scheduling plugin. No form renders.</td><td>The only direct booking path is closed.</td></tr>
+    <tr><td>Home page</td><td>A slider and two videos fail to render, leaving large blank areas. Text opens with a paragraph, not an image.</td><td>First impression is broken, not couture.</td></tr>
+    <tr><td>Collections index</td><td>Collection cover images do not load; six text blocks and buttons on white.</td><td>Gowns are invisible until two clicks deep.</td></tr>
+    <tr><td>Real Brides stories</td><td>Photo grids with no text, captions or credits, and blank space below.</td><td>Proof without a story.</td></tr>
+    <tr><td>Page weight</td><td>About sixty scripts and forty stylesheets per page from Oshine, Tatsu, MasterSlider and plugins.</td><td>Slow on 4G and inside the Instagram browser, where ad traffic arrives.</td></tr>
+    <tr><td>Mobile</td><td>Logo overlaps the hero image; slider regions are empty; headings wrap awkwardly.</td><td>Most Instagram visitors see this version.</td></tr>
+    <tr><td>Freshness</td><td>Press items and copyright date from 2021. Blog dormant.</td><td>Reads as a dormant brand.</td></tr>
+    <tr><td>Assets worth keeping</td><td>Asheyori Eji lookbook (twelve gowns, four angles each, 853×1280 portrait), ten Real Brides photo sets, the Contact hero, Yemi's biography, press items (CFDA, Vogue, World Bride Magazine).</td><td>Enough to launch with, before new photography.</td></tr>
+  </table></div>
+
+  <h2>2. Objective and principles</h2>
+  <p><strong>Objective.</strong> Turn a visitor into a booked consultation with Yemi, in person in Brooklyn or over Zoom. Everything on the site earns its place by moving someone toward that, or by making them trust the outcome enough to do it.</p>
+  <ul>
+    <li><strong>Show the process, not just the dress.</strong> Sketching in real time, the toile, the fittings, hand beading. This is what separates couture from a boutique, and no competitor's site shows it well.</li>
+    <li><strong>Outcome as proof.</strong> Real brides in real venues, with their own words. This section carries the conversion.</li>
+    <li><strong>Phone first.</strong> Portrait images in 4:5 and 9:16, one column, thumb-reach buttons, a persistent "Book" link in the header.</li>
+    <li><strong>Small and fast.</strong> Six pages, one purpose each, under one megabyte per page, no third-party scripts except the Meta pixel and the calendar on the booking page.</li>
+    <li><strong>Nothing that can expire.</strong> No plugins, no licences, no theme updates. Content is plain files that Claude Code or a simple editor can change.</li>
+  </ul>
+
+  <h2>3. Site structure</h2>
+  <p>Six pages. The mockups for each are on the <a href="https://claude.ai/artifact/PT4DfhGoCgMxf6K9G3jDRs">Claude Design canvas</a>.</p>
+  <div class="scroll"><table>
+    <tr><th>Page</th><th>Job</th><th>Absorbs from the old site</th></tr>
+    <tr><td>Home</td><td>The thesis in one scroll: hero gown, the process in four rows, gowns strip, one real bride, Yemi, book.</td><td>Home, In the News teaser</td></tr>
+    <tr><td>The Atelier</td><td>The haute couture process in six numbered stages with new photography: conversation, sketch, fabric, toile, fittings, hand finishing. Lead-time note.</td><td>"The art of the Dress" copy, The Brand</td></tr>
+    <tr><td>Gowns</td><td>One editorial gallery with filters: Couture, Asheyori Eji ready-to-wear, Mother of the Bride. Collection index below. Each gown has a detail page with the four existing angles and an "Enquire" button that pre-fills the booking form.</td><td>Wedding Gowns, six collection pages, MOTB</td></tr>
+    <tr><td>Real Brides</td><td>Ten stories, each with venue, a quote from the bride and the photos. Photographer credits.</td><td>Real Brides</td></tr>
+    <tr><td>Yemi</td><td>The designer's story since 1991, clients, training, and the press as a short list with links.</td><td>The Designer, In the Press</td></tr>
+    <tr><td>Book</td><td>Two steps: a one-minute form, then a calendar. Minimal header, no menu, works as an ad landing page.</td><td>Contact, Bookings</td></tr>
+  </table></div>
+  <p><strong>Dropped.</strong> Blog (dormant since 2021), Loungewear (off-brief for bookings; if it sells, link out to a shop from the footer). Both get 301 redirects so old links and Google rankings are not lost. A full redirect map is part of Phase 3.</p>
+
+  <h2>4. The booking funnel</h2>
+  <p>One page, kosibah.com/book, is the destination for every channel. Ad and social traffic never lands on the home page.</p>
+  <h3>Step 1: the form</h3>
+  <p>First name, email, phone or WhatsApp, wedding date, in person or Zoom, an optional note, consent. Submitting sends a "Lead" event to Meta, emails the atelier, and adds a row to a leads sheet. It should take under a minute on a phone.</p>
+  <h3>Step 2: the calendar</h3>
+  <p>An embedded scheduler (Cal.com recommended; Calendly or Acuity work the same way) showing Yemi's real availability, with name and email pre-filled from step 1. Booking creates the calendar event, sends confirmations, adds a Zoom link where relevant, and sends a "Schedule" event to Meta through its Conversions API, which is more reliable than the browser pixel inside the Instagram app.</p>
+  <h3>Channels into /book</h3>
+  <div class="scroll"><table>
+    <tr><th>Channel</th><th>Set-up</th></tr>
+    <tr><td>Instagram bio</td><td>Link to /book with UTM tags. Change it the same day the page goes live, even before the full site does.</td></tr>
+    <tr><td>Stories and Reels</td><td>Link sticker to /book. A saved DM reply with the same link for enquiries.</td></tr>
+    <tr><td>Meta ads</td><td>Lead objective, website conversions, optimise for the Schedule event. Creative: process video (Yemi sketching, hand beading), 9:16. Audience: engaged brides, 25 to 45, New York metro plus London and Lagos diaspora, then lookalikes of past leads.</td></tr>
+    <tr><td>Instagram lead forms</td><td>Optional test alongside: Meta's native form, forwarded to the atelier with an automatic reply containing the calendar link. Faster, but lower-quality leads. Run both for a month and compare.</td></tr>
+    <tr><td>Google</td><td>A Google Business Profile for the Brooklyn atelier, and page titles built around "couture bridal designer New York". Small but free.</td></tr>
+  </table></div>
+  <div class="callout"><div class="eyebrow">Quick win this week</div><div>Replace the dead bookings page on the current WordPress site with a plain page that holds a Cal.com or Calendly embed, and point the Instagram bio to it. This takes an hour and starts bookings flowing months before launch.</div></div>
+
+  <h2>5. Design direction</h2>
+  <p>Fashion editorial, not bridal boutique. Chalk-white ground, near-black type, one oxblood accent used only on the booking action. A high-contrast Didone serif for headings, a light geometric sans for everything else. Photography does the talking; type stays small, spaced and quiet.</p>
+  <ul>
+    <li><strong>Layouts.</strong> Nine artboards on the canvas: site structure, six phone pages, the second booking step with confirmation, and a desktop home. Phone artboards are full-page scrolls at 390 px.</li>
+    <li><strong>Photography placeholders.</strong> Each image slot is labelled with the shot it needs, so the canvas doubles as the shot list for the photographer.</li>
+    <li><strong>Motion.</strong> One: a slow crossfade or a short muted video loop in the home hero. Nothing else moves.</li>
+    <li><strong>Accessibility.</strong> Real buttons and labels, 44 px touch targets, text at 4.5:1 contrast, reduced-motion respected.</li>
+  </ul>
+  <p class="small">The canvas is private until shared from its Share menu. Yemi will need access to comment.</p>
+
+  <h2>6. Imagery and content</h2>
+  <h3>Reuse now</h3>
+  <p>The Asheyori Eji lookbook is portrait 2:3 and crops cleanly to 4:5 for phones. The ten Real Brides sets cover the outcome. The Contact hero (the Manhattan Bridge shot) is strong enough for the desktop home. These are enough to launch.</p>
+  <h3>Commission: the atelier shoot</h3>
+  <p>One day at the atelier with a bride or model, shot for phones. This is the long pole in the timeline, so book it first.</p>
+  <ul>
+    <li>Yemi sketching with a bride, the sketchbook, the finished illustration.</li>
+    <li>Fabric: bolts of silk, lace, beaded appliqué in the atelier's light.</li>
+    <li>The toile on the stand with chalk marks and pins.</li>
+    <li>A fitting in the mirror, hands with pins.</li>
+    <li>Macro of a needle through beaded lace; corsetry inside a bodice.</li>
+    <li>Portrait of Yemi at the cutting table.</li>
+    <li>Six to eight short vertical video clips, five to eight seconds each, for the hero and for Meta ads.</li>
+  </ul>
+  <p>Deliver in 4:5 and 9:16 crops plus a 3:2 for desktop, consistently graded. Model and photographer releases for web and paid social.</p>
+  <h3>Copy to gather from Yemi</h3>
+  <ul>
+    <li>Couture lead time and the number of fittings, for The Atelier and gown pages.</li>
+    <li>Whether the first consultation is free or carries a fee. The mockups assume no charge; confirm before build.</li>
+    <li>One to three sentences from each Real Bride, and each wedding's venue and photographer.</li>
+    <li>Names and short notes for the couture gowns in the Turner, Bienvenue, Tuscany, Stateside and Chrysallis collections.</li>
+  </ul>
+
+  <h2>7. Technical approach</h2>
+  <h3>Recommended: static site, git-based editing</h3>
+  <div class="scroll"><table>
+    <tr><th>Layer</th><th>Choice</th><th>Why</th></tr>
+    <tr><td>Framework</td><td>Astro</td><td>Ships plain HTML with no JavaScript by default. Built-in image optimisation (AVIF/WebP, responsive sizes). Claude Code builds and maintains it directly.</td></tr>
+    <tr><td>Content</td><td>Markdown files plus Keystatic</td><td>Gowns, brides and press are folders of files with images. Keystatic gives Yemi a simple editing screen over the same files, no database.</td></tr>
+    <tr><td>Hosting</td><td>Cloudflare Pages</td><td>Free tier, global CDN, automatic deploys from GitHub, redirects file for the old URLs.</td></tr>
+    <tr><td>Booking</td><td>Cal.com</td><td>Embeds well, syncs Google Calendar and Zoom, webhooks for the Meta event. Free for one person. Calendly is the equivalent if preferred.</td></tr>
+    <tr><td>Form handling</td><td>A Cloudflare Pages Function</td><td>Emails the atelier (via Resend), appends to a Google Sheet, fires the Meta Conversions API. About fifty lines of code, no service to pay for.</td></tr>
+    <tr><td>Analytics</td><td>Cloudflare Web Analytics plus Meta Pixel</td><td>No cookie banner needed for Cloudflare's; the pixel loads only on /book and with consent text on the form.</td></tr>
+    <tr><td>Code</td><td>GitHub repository</td><td>Every change is versioned. Claude Code can add a gown, a bride or a press item from a sentence.</td></tr>
+  </table></div>
+  <p><strong>Running cost.</strong> Domain plus, at most, a Cal.com or email plan if a paid tier is chosen. Everything else is on free tiers. Compared with WordPress hosting, theme and plugin licences, this is close to zero.</p>
+  <p><strong>Trade-off.</strong> Day-to-day edits go through Danny (a sentence to Claude Code) or through Keystatic's editor. There is no drag-and-drop page builder, which is the point: nothing can drift off-brand or break.</p>
+  <h3>Alternative: Squarespace with Acuity Scheduling</h3>
+  <p>Hosted, Yemi can edit everything, and Acuity is built in for bookings. It costs a monthly fee, the templates fight an editorial layout, and the page weight is higher. Choose this only if it matters that Yemi can restyle pages without Danny.</p>
+  <h3>Not recommended: another WordPress build</h3>
+  <p>The current failures are all plugin and theme rot. A leaner theme would help for a year and then need the same care again.</p>
+
+  <h2>8. Performance, SEO and measurement</h2>
+  <ul>
+    <li><strong>Targets.</strong> Largest Contentful Paint under 2.5 s on a mid-range phone on 4G; total page weight under 1 MB; Lighthouse performance above 90 on every page.</li>
+    <li><strong>Redirects.</strong> Every old URL mapped to its new home: collections to gown pages, the-founder and in-the-press to /yemi, contact and bookings to /book, blog posts to the home page.</li>
+    <li><strong>Structured data.</strong> LocalBusiness with the Brooklyn address and hours; Person for Yemi; each gown as a Product without a price.</li>
+    <li><strong>What we measure.</strong> Visits to /book, form completions (Lead), calendar bookings (Schedule), and consultations held. Report monthly by channel using the UTM tags.</li>
+  </ul>
+
+  <h2>9. Phases and timeline</h2>
+  <p>About seven weeks if the photo shoot lands in week three. The shoot is the only external dependency; everything else is under our control.</p>
+  <div class="phase"><div class="when">Week 1</div><div><h3>Stop the bleeding, and decide</h3><ul><li>Replace the broken bookings page with a calendar embed. Point the Instagram bio at it.</li><li>Decisions in section 10. Book the photographer.</li><li>Export the WordPress content and media; inventory what is worth keeping.</li></ul></div></div>
+  <div class="phase"><div class="when">Weeks 2 to 3</div><div><h3>Design and copy</h3><ul><li>Refine the Claude Design layouts with Yemi's comments. Add the Yemi page and a menu state.</li><li>Write the copy for all six pages; gather lead times, bride quotes, gown names.</li><li>Photo shoot at the atelier.</li></ul></div></div>
+  <div class="phase"><div class="when">Weeks 3 to 5</div><div><h3>Build</h3><ul><li>Astro project, components for each section on the canvas, content collections for gowns, brides and press.</li><li>Booking page: form function, Cal.com embed, Meta pixel and Conversions API, confirmation emails.</li><li>Keystatic editor configured for the three content types.</li></ul></div></div>
+  <div class="phase"><div class="when">Week 6</div><div><h3>Content and QA</h3><ul><li>Load all gowns, brides and new photography. Crop and grade.</li><li>Test on real phones, inside the Instagram in-app browser, and on slow connections.</li><li>Redirect map, structured data, accessibility pass.</li></ul></div></div>
+  <div class="phase"><div class="when">Week 7</div><div><h3>Launch and first campaign</h3><ul><li>Switch DNS to Cloudflare; keep WordPress reachable for a fortnight as a fallback.</li><li>Verify the pixel and Conversions API events in Meta Events Manager.</li><li>Run the first Meta lead campaign to /book with two creatives. Review after two weeks.</li></ul></div></div>
+  <div class="phase" style="border-bottom: 0"><div class="when">Ongoing</div><div><h3>Maintenance</h3><ul><li>Roughly an hour a month: add a bride or a gown, check the booking flow, read the channel report.</li><li>No updates, licences or renewals apart from the domain.</li></ul></div></div>
+
+  <h2>10. Decisions needed</h2>
+  <ol>
+    <li><strong>Stack.</strong> Astro on Cloudflare (recommended) or Squarespace with Acuity.</li>
+    <li><strong>Scheduler.</strong> Cal.com (recommended), Calendly, or Acuity.</li>
+    <li><strong>Consultation policy.</strong> Free or a fee, length, and whether Zoom consultations are still offered.</li>
+    <li><strong>Loungewear and Mother of the Bride.</strong> Drop loungewear or link to a shop; keep Mother of the Bride as a gallery filter.</li>
+    <li><strong>Photography.</strong> Budget and a date for the atelier shoot, and who the bride or model is.</li>
+    <li><strong>Who edits.</strong> Danny via Claude Code only, or Yemi as well via Keystatic.</li>
+    <li><strong>Access.</strong> WordPress admin for the export, the domain registrar, the Meta Business account and Instagram, and Yemi's Google calendar for the scheduler.</li>
+  </ol>
+
+  <h2>11. Next step</h2>
+  <p>Fix the booking page on the live site this week, and review the page layouts on the canvas with Yemi. Once the decisions above are made, the build can start in the same session that made this plan.</p>
+  <a class="btn" href="https://claude.ai/artifact/PT4DfhGoCgMxf6K9G3jDRs">Open the page layouts</a>
+</div>
+
+</body></html>

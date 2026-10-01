@@ -1,0 +1,69 @@
+---
+/**
+ * A featured bride on the Real Brides index: lead photo, name, place · line,
+ * pull quote and a link to the story. Phone: full-bleed 4:5 crop, one column.
+ * Desktop: two-column band, photo at natural aspect, sides alternate per `flip`.
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { brideLineLabel } from './BrideLines';
+
+interface Props {
+  bride: CollectionEntry<'brides'>;
+  /** Put the photo on the right on desktop. */
+  flip?: boolean;
+  /** Eager-load the first band's photo. */
+  eager?: boolean;
+}
+const { bride, flip = false, eager = false } = Astro.props;
+const { name, place, line, quote, images } = bride.data;
+const lead = images[0];
+const href = `/real-brides/${bride.id}`;
+---
+<article class="feature" data-flip={flip || undefined}>
+  <a class="feature__media" href={href} aria-hidden="true" tabindex="-1">
+    <Image
+      src={lead.src}
+      alt={lead.alt}
+      widths={[480, 780, 1100, 1400]}
+      sizes="(min-width: 900px) min(50vw, 600px), 100vw"
+      loading={eager ? 'eager' : 'lazy'}
+      fetchpriority={eager ? 'high' : undefined}
+      class="feature__img"
+    />
+  </a>
+  <div class="container feature__text">
+    <header class="feature__head">
+      <h2 class="feature__name">{name}</h2>
+      <p class="eyebrow feature__meta">{place} · {brideLineLabel[line]}</p>
+    </header>
+    {quote && <p class="quote feature__quote">“{quote}”</p>}
+    <a class="textlink" href={href}>{name}’s story</a>
+  </div>
+</article>
+
+<style>
+  .feature { display: grid; gap: 1.75rem; }
+  .feature__media { display: block; }
+  .feature__img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 50%; }
+  .feature__head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .feature__name { font-size: var(--display-sm); margin: 0; }
+  .feature__meta { margin: 0; text-align: right; white-space: nowrap; }
+  .feature__quote { margin-bottom: 1.25rem; }
+
+  @media (min-width: 900px) {
+    .feature {
+      grid-template-columns: 1fr 1fr; align-items: center; gap: clamp(2.5rem, 6vw, 5rem);
+      max-width: var(--max); margin-inline: auto; padding-inline: var(--gutter);
+    }
+    .feature__img { aspect-ratio: auto; }
+    .feature__text { padding-inline: 0; }
+    .feature[data-flip] .feature__media { order: 2; }
+    .feature__name { font-size: var(--display-md); }
+    .feature__head { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .feature__meta { text-align: left; }
+  }
+</style>

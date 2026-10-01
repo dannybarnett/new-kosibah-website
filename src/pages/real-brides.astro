@@ -1,0 +1,60 @@
+---
+/**
+ * Real Brides index. Featured stories first (photo, name, quote, story link),
+ * then every other bride as a list, then the booking block.
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BookCta from '../components/BookCta.astro';
+import BrideFeature from '../components/BrideFeature.astro';
+import BrideRow from '../components/BrideRow.astro';
+
+const brides = (await getCollection('brides')).sort((a, b) => a.data.order - b.data.order);
+const featured = brides.filter((b) => b.data.featured);
+const more = brides.filter((b) => !b.data.featured);
+---
+<BaseLayout
+  title="Real Brides"
+  description="Ten Kosibah weddings, from Lagos to Lake Como. Couture gowns as they were worn, and the brides in their own words."
+>
+  <section class="section intro">
+    <div class="container">
+      <p class="eyebrow">Real Brides</p>
+      <h1>The outcome.</h1>
+      <p class="intro__lede">Ten weddings, from Lagos to Lake Como. The gowns as they were worn, and the brides in their own words.</p>
+    </div>
+  </section>
+
+  <section class="features" aria-label="Featured brides">
+    {featured.map((bride, i) => <BrideFeature bride={bride} flip={i % 2 === 1} eager={i === 0} />)}
+  </section>
+
+  <section class="section section--deep more">
+    <div class="container">
+      <h2 class="eyebrow">More brides</h2>
+      <ul class="more__list">
+        {more.map((bride) => <BrideRow bride={bride} />)}
+      </ul>
+    </div>
+  </section>
+
+  <BookCta title="Your wedding, your gown, your page here." body="" />
+</BaseLayout>
+
+<style>
+  .intro { padding-block: 3rem 2.5rem; }
+  .intro h1 { font-size: var(--display-lg); }
+  .intro__lede { margin: 0; font-size: var(--text-lg); }
+  .features { display: grid; gap: 3.5rem; padding-bottom: 4rem; }
+  .more { padding-block: 3rem 3.5rem; }
+  .more__list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+
+  @media (min-width: 768px) {
+    .intro { padding-block: 5rem 4rem; }
+    .more { padding-block: 5rem 6rem; }
+    .more__list { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem 2.5rem; border-top: 0; }
+  }
+  @media (min-width: 900px) {
+    .features { gap: 6rem; padding-bottom: 6rem; }
+  }
+</style>

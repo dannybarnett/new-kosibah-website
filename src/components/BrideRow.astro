@@ -1,0 +1,49 @@
+---
+/**
+ * One entry in the "More brides" list. Phone: a row with a 64px square thumbnail,
+ * name and place, hairline below. Desktop: a landscape card with the same fields.
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props { bride: CollectionEntry<'brides'> }
+const { bride } = Astro.props;
+const { name, place, images } = bride.data;
+const lead = images[0];
+---
+<li class="row">
+  <a class="row__link" href={`/real-brides/${bride.id}`}>
+    <Image
+      src={lead.src}
+      alt=""
+      widths={[128, 480, 780, 1100]}
+      sizes="(min-width: 768px) min(50vw, 580px), 64px"
+      loading="lazy"
+      class="row__img"
+    />
+    <span class="row__name">{name}</span>
+    <span class="eyebrow row__place">{place}</span>
+  </a>
+</li>
+
+<style>
+  .row { list-style: none; border-bottom: 1px solid var(--line); }
+  .row__link {
+    display: grid; grid-template-columns: 64px 1fr auto; grid-template-areas: 'img name place';
+    align-items: center; gap: 1rem; min-height: var(--tap); padding-block: 0.75rem;
+    text-decoration: none; color: inherit;
+  }
+  .row__img { grid-area: img; width: 64px; aspect-ratio: 1; object-fit: cover; object-position: 50% 25%; }
+  .row__name { grid-area: name; font-family: var(--font-serif); font-size: 1.5rem; line-height: 1.1; }
+  .row__place { grid-area: place; margin: 0; text-align: right; white-space: nowrap; }
+
+  @media (min-width: 768px) {
+    .row { border-bottom: 0; }
+    .row__link {
+      grid-template-columns: 1fr auto; grid-template-areas: 'img img' 'name place';
+      gap: 1rem 1.5rem; padding-block: 0 0.75rem; border-bottom: 1px solid var(--line);
+    }
+    .row__img { width: 100%; aspect-ratio: 3 / 2; }
+    .row__link:hover .row__name, .row__link:focus-visible .row__name { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+  }
+</style>

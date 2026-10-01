@@ -1,0 +1,13 @@
+# Copy to .dev.vars for `wrangler pages dev`. Never commit .dev.vars.
+# Public, build-time (also put these in .env for `astro dev` / `astro build`):
+PUBLIC_CAL_LINK=
+PUBLIC_META_PIXEL_ID=
+
+# Runtime secrets for functions/api/lead.ts
+RESEND_API_KEY=
+LEAD_TO_EMAIL=
+LEAD_FROM_EMAIL=
+SHEETS_WEBHOOK_URL=
+META_PIXEL_ID=
+META_ACCESS_TOKEN=
+META_TEST_EVENT_CODE=

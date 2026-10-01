@@ -1,0 +1,78 @@
+---
+/**
+ * /book/confirmed — Cal.com's bookingSuccessful handler sends the bride here with
+ * ?date=<ISO>&location=in-person|zoom&uid=<booking uid>. Without those params the copy
+ * stays generic. The browser Schedule event fires here; the reliable server-side one
+ * comes from the Cal.com webhook (see README).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { site } from '../../lib/site';
+---
+<BaseLayout title="Consultation confirmed" description="Your consultation with Yemi is booked. The details are in your inbox." minimal>
+  <Fragment slot="head"><meta name="robots" content="noindex" /></Fragment>
+  <section class="section conf">
+    <div class="container conf__col">
+      <p class="eyebrow">Confirmed</p>
+      <h1 id="conf-title">See you soon.</h1>
+
+      <div class="conf__when" id="conf-when" hidden>
+        <p class="conf__date" id="conf-date"></p>
+        <p class="conf__where" id="conf-where"></p>
+      </div>
+
+      <p class="conf__body">The details are in your inbox. Yemi or the atelier will call the day before. Bring photographs of anything you love, and shoes at the height you plan to wear.</p>
+
+      <div class="conf__actions">
+        <!-- Replaced by the scheduler's ICS / booking link when a uid is present -->
+        <a class="btn" id="add-to-calendar" href="#">Add to calendar</a>
+        <a class="btn" href={site.instagramUrl} rel="me noopener">Follow {site.instagram}</a>
+      </div>
+
+      <a class="textlink" href="/atelier">Read how a gown is made</a>
+
+      <p class="conf__foot">Need to change the time? Reply to the email, or call <a href={site.phoneHref}>{site.phone}</a>.</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const w = window as unknown as { fbq?: (...a: unknown[]) => void };
+  if (w.fbq) w.fbq('track', 'Schedule');
+
+  const p = new URLSearchParams(location.search);
+  const iso = p.get('date');
+  const loc = p.get('location');
+  const uid = p.get('uid');
+  const d = iso ? new Date(iso) : null;
+  if (d && !Number.isNaN(d.getTime())) {
+    const tz = 'America/New_York';
+    const weekday = d.toLocaleDateString('en-US', { weekday: 'long', timeZone: tz });
+    const when = d.toLocaleString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: tz }).replace(/,?\s(\d{2}:\d{2})$/, ', $1');
+    document.getElementById('conf-title')!.textContent = `See you ${weekday}.`;
+    document.getElementById('conf-date')!.textContent = when;
+    document.getElementById('conf-where')!.textContent =
+      loc === 'zoom' ? 'Over Zoom. The link is in your confirmation email.' : 'Kosibah atelier, 515 Manhattan Ave, New York';
+    document.getElementById('conf-when')!.hidden = false;
+  }
+  if (uid) {
+    const a = document.getElementById('add-to-calendar') as HTMLAnchorElement;
+    a.href = `https://app.cal.com/booking/${encodeURIComponent(uid)}`;
+    a.rel = 'noopener';
+  }
+</script>
+
+<style>
+  .conf { padding-block: 2.5rem 4rem; min-height: 60vh; }
+  .conf__col { max-width: calc(var(--measure) + 2 * var(--gutter)); }
+  .conf h1 { font-size: var(--display-lg); margin-bottom: 1.5rem; }
+  .conf__when { border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 1rem 0; margin-bottom: 1.5rem; }
+  .conf__date { font-size: var(--text-lg); font-weight: 400; color: var(--ink); margin: 0 0 0.25rem; }
+  .conf__where { margin: 0; color: var(--ink-mute); }
+  .conf__body { margin-bottom: 2rem; }
+  .conf__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 2rem; }
+  .conf__actions .btn { padding-inline: 0.75rem; text-align: center; }
+  .conf__foot { margin-top: 3rem; font-size: var(--text-sm); color: var(--ink-mute); }
+  .conf__foot a { color: var(--ink); text-decoration: none; }
+  @media (max-width: 380px) { .conf__actions { grid-template-columns: 1fr; } }
+  @media (min-width: 768px) { .conf { padding-block: 4rem 6rem; } }
+</style>

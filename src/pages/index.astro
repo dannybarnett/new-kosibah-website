@@ -1,8 +1,354 @@
 ---
+/**
+ * Home. The thesis in one scroll: hero, manifesto, the process in four,
+ * a strip of gowns, one real bride, Yemi, press, book.
+ */
+import { getCollection } from 'astro:content';
+import { Image, getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import BookCta from '../components/BookCta.astro';
+import { site } from '../lib/site';
+import heroImg from '../assets/site/hero-bridge.jpg';
+import yemiImg from '../assets/site/yemi.jpg';
+import finishingImg from '../assets/gowns/tinuke/front-detail.jpg';
+
+const title = 'Kosibah';
+const description =
+  "Couture bridal. One gown, made for one woman, drawn, cut and finished by hand at Yemi Osunkoya's atelier in New York.";
+
+/* Featured gowns, in editorial order. The desktop grid shows the first three; the phone strip shows them all. */
+const collections = await getCollection('collections');
+const collectionName = (id: string) => collections.find((c) => c.id === id)?.data.name ?? '';
+const gowns = (await getCollection('gowns', ({ data }) => data.featured)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const gownLabel = (g: (typeof gowns)[number]) => {
+  const { line, styleNumber, collection } = g.data;
+  if (line === 'asheyori-eji') return ['Asheyori Eji', styleNumber].filter(Boolean).join(' · ');
+  if (line === 'mother-of-the-bride') return 'Mother of the bride';
+  return ['Couture', collectionName(collection.id)].filter(Boolean).join(' · ');
+};
+
+/* One real bride on the home page: the first featured. */
+const lineLabel = { couture: 'Couture', 'asheyori-eji': 'Asheyori Eji', 'mother-of-the-bride': 'Mother of the bride' } as const;
+const bride = (await getCollection('brides', ({ data }) => data.featured)).sort(
+  (a, b) => a.data.order - b.data.order,
+)[0];
+
+/* Social image: the hero at 1200 wide. */
+const og = await getImage({ src: heroImg, width: 1200, format: 'jpg' });
+
+const steps = [
+  { key: 'sketch', title: 'The sketch', line: 'Drawn in front of you', label: 'Sketch' },
+  { key: 'toile', title: 'The toile', line: 'Cut first in calico, to your body', label: 'Toile' },
+  { key: 'finishing', title: 'Hand finishing', line: 'Appliqué, beading, corsetry', image: finishingImg },
+  { key: 'fitting', title: 'The fittings', line: 'Until it is simply yours', label: 'Fitting' },
+];
 ---
-<BaseLayout title="Kosibah" description="Couture bridal. One gown, made for one woman, by hand at Yemi Osunkoya's atelier.">
-  <section class="section"><div class="container"><p class="eyebrow">Placeholder</p><h1>Home page is being built.</h1></div></section>
+<BaseLayout title={title} description={description} image={og.src}>
+  <!-- 1. Hero -->
+  <section class="hero">
+    <div class="hero__media">
+      <Image
+        class="hero__img"
+        src={heroImg}
+        alt="A bride in a strapless Kosibah couture ballgown on the riverside steps beneath the Manhattan Bridge."
+        widths={[640, 1000, 1400]}
+        sizes="(min-width: 900px) 50vw, 100vw"
+        priority
+      />
+    </div>
+    <div class="hero__text">
+      <p class="eyebrow">{site.tagline}</p>
+      <h1 class="hero__title">One gown.<br />Made for one woman.</h1>
+      <p class="hero__body">
+        Designed from a blank page, cut to your measurements and finished by hand at Yemi Osunkoya's atelier.
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--book" href="/book">Book a consultation</a>
+        <a class="textlink" href="/gowns">See the gowns</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Manifesto -->
+  <section class="section manifesto">
+    <div class="container manifesto__inner">
+      <p class="quote">
+        Every Kosibah gown begins as a conversation. Yemi sketches in front of you, in real time, until the drawing is
+        the dress.
+      </p>
+      <p>
+        Your figure, your venue, the season, the hour of the ceremony, the traditions that matter to your family. All of
+        it goes into the sketch before a single seam is cut.
+      </p>
+    </div>
+  </section>
+
+  <!-- 3. The Atelier -->
+  <section class="section section--deep atelier">
+    <div class="container sec">
+      <header class="sec__head">
+        <p class="eyebrow">The Atelier</p>
+        <h2>By hand, at every stage.</h2>
+      </header>
+      <ol class="steps sec__body">
+        {steps.map((s) => (
+          <li class="step">
+            {s.image ? (
+              <Image
+                class="step__thumb"
+                src={s.image}
+                alt=""
+                widths={[160, 320, 480, 640]}
+                sizes="(min-width: 900px) 22vw, 80px"
+              />
+            ) : (
+              <div class={`step__thumb step__thumb--${s.key}`} aria-hidden="true">
+                <span class="step__label">{s.label}</span>
+              </div>
+            )}
+            <div class="step__text">
+              <h3 class="step__title">{s.title}</h3>
+              <p class="step__line">{s.line}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <a class="textlink sec__link" href="/atelier">The process in full</a>
+    </div>
+  </section>
+
+  <!-- 4. The Gowns -->
+  <section class="section gowns">
+    <div class="container sec">
+      <header class="sec__head">
+        <p class="eyebrow">The Gowns</p>
+        <h2>Couture, and the Asheyori Eji collection.</h2>
+      </header>
+      <div class="sec__body">
+        <div class="strip" role="region" aria-label="Featured gowns" tabindex="0">
+          <ul class="strip__list">
+          {gowns.map((g) => (
+            <li class="card">
+              <a class="card__link" href={`/gowns/${g.id}`}>
+                <Image
+                  class="card__img"
+                  src={g.data.images[0].src}
+                  alt={g.data.images[0].alt}
+                  widths={[320, 480, 640, 960]}
+                  sizes="(min-width: 900px) 30vw, 72vw"
+                />
+                <span class="card__meta">
+                  <span class="card__name">{g.data.name}</span>
+                  <span class="card__label">{gownLabel(g)}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+          </ul>
+        </div>
+        <p class="strip__hint" aria-hidden="true">Swipe for more</p>
+      </div>
+      <a class="textlink sec__link" href="/gowns">All the gowns</a>
+    </div>
+  </section>
+
+  <!-- 5. Real Brides -->
+  {bride && (
+    <section class="bride">
+      <div class="bride__media">
+        <Image
+          class="bride__img"
+          src={bride.data.images[0].src}
+          alt={bride.data.images[0].alt}
+          widths={[640, 1000, 1400]}
+          sizes="(min-width: 900px) 50vw, 100vw"
+        />
+      </div>
+      <div class="bride__text">
+        <p class="eyebrow">Real Brides</p>
+        {bride.data.quote && <p class="quote bride__quote">“{bride.data.quote}”</p>}
+        <p class="bride__name">{bride.data.name}</p>
+        <p class="eyebrow bride__where">{bride.data.place} · {lineLabel[bride.data.line]}</p>
+        <a class="textlink" href="/real-brides">More real brides</a>
+      </div>
+    </section>
+  )}
+
+  <!-- 6. The Designer -->
+  <section class="section designer">
+    <div class="container designer__inner">
+      <Image
+        class="designer__img"
+        src={yemiImg}
+        alt="Yemi Osunkoya in the atelier, a model in a beaded gown behind him."
+        widths={[300, 480, 700, 933]}
+        sizes="(min-width: 900px) 320px, 40vw"
+      />
+      <div class="designer__text">
+        <p class="eyebrow">The Designer</p>
+        <h3 class="designer__name">Yemi Osunkoya</h3>
+        <p>
+          Thirty-five years of couture, from London to Brooklyn. Clients include royal households in Nigeria and Ghana
+          and senior staff of the British Royal Family.
+        </p>
+        <a class="textlink" href="/yemi">His story</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Featured in -->
+  <section class="press">
+    <div class="container press__row">
+      <p class="eyebrow press__eyebrow">Featured in</p>
+      <ul class="press__list">
+        {site.press.map((name) => <li>{name}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <!-- 8. Book -->
   <BookCta />
 </BaseLayout>
+
+<style>
+  /* ---- Hero ---- */
+  .hero { background: var(--chalk); }
+  .hero__media { aspect-ratio: 4 / 5; overflow: hidden; }
+  .hero__img { width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; }
+  .hero__text { padding: 2.5rem var(--gutter) 3rem; }
+  .hero__title { max-width: 12ch; }
+  .hero__body { margin-bottom: 1.75rem; }
+  .hero__actions { display: grid; gap: 0.75rem; }
+  .hero__actions .btn { width: 100%; }
+  .hero__actions .textlink { justify-self: start; }
+
+  /* ---- Manifesto ---- */
+  .manifesto__inner p:last-child { margin-bottom: 0; }
+
+  /* ---- Section scaffolding: head / body / link.
+     Phone stacks them; desktop puts the link on the heading row. ---- */
+  .sec { display: grid; grid-template-areas: 'head' 'body' 'link'; }
+  .sec__head { grid-area: head; }
+  .sec__head h2 { margin-bottom: 1.75rem; }
+  .sec__body { grid-area: body; }
+  .sec__link { grid-area: link; justify-self: start; margin-top: 1.5rem; }
+
+  /* ---- The Atelier ---- */
+  .steps { list-style: none; margin: 0; padding: 0; }
+  .step {
+    display: grid; grid-template-columns: 80px 1fr; gap: 1.25rem; align-items: center;
+    padding-block: 1rem; border-bottom: 1px solid var(--line);
+  }
+  .step:first-child { border-top: 1px solid var(--line); }
+  .step__thumb {
+    position: relative; width: 100%; aspect-ratio: 1; height: auto;
+    object-fit: cover; object-position: 50% 20%;
+  }
+  /* Placeholder blocks double as the shot list for the atelier photo shoot. */
+  .step__thumb--sketch { background: var(--line); }
+  .step__thumb--toile { background: #cfc9bf; }
+  .step__thumb--fitting { background: #3a3836; }
+  .step__label {
+    position: absolute; left: 0.4rem; bottom: 0.3rem;
+    font-size: 0.5rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute);
+  }
+  .step__thumb--fitting .step__label { color: #a09b93; }
+  .step__title { font-size: 1.25rem; margin-bottom: 0.2rem; }
+  .step__line { font-size: var(--text-sm); margin: 0; }
+
+  /* ---- The Gowns: swipe strip on phone, grid on desktop ---- */
+  .strip {
+    overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory; scrollbar-width: none;
+    margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter);
+    scroll-padding-inline: var(--gutter);
+  }
+  .strip::-webkit-scrollbar { display: none; }
+  .strip__list { list-style: none; margin: 0; padding: 0; display: flex; gap: 0.75rem; }
+  .card { flex: 0 0 min(72vw, 300px); scroll-snap-align: start; }
+  .card__link { display: block; text-decoration: none; color: inherit; }
+  .card__img { width: 100%; aspect-ratio: 2 / 3; height: auto; object-fit: cover; object-position: 50% 15%; background: var(--chalk-deep); }
+  .card__meta { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; padding-top: 0.75rem; }
+  .card__name { font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.2; }
+  .card__label {
+    font-size: var(--text-xs); letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute);
+    white-space: nowrap; line-height: 1.6;
+  }
+  .strip__hint { font-size: var(--text-xs); letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute); margin: 1rem 0 0; }
+
+  /* ---- Real Brides ---- */
+  .bride { background: var(--chalk); }
+  .bride__media { aspect-ratio: 4 / 3; overflow: hidden; }
+  .bride__img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+  .bride__text { padding: 2.5rem var(--gutter) 3.5rem; }
+  .bride__quote { font-size: 1.5rem; margin-bottom: 1.5rem; }
+  .bride__name { font-weight: 500; color: var(--ink); margin-bottom: 0.25rem; }
+  .bride__where { margin-bottom: 1.25rem; }
+
+  /* ---- The Designer: two columns even on phone ---- */
+  .designer { border-top: 1px solid var(--line); }
+  .designer__inner { display: grid; grid-template-columns: 2fr 3fr; gap: 1.25rem; align-items: start; }
+  .designer__img { width: 100%; aspect-ratio: 2 / 3; height: auto; object-fit: cover; }
+  .designer__name { font-size: 1.5rem; }
+  .designer__text p { font-size: var(--text-sm); }
+
+  /* ---- Featured in ---- */
+  .press { border-top: 1px solid var(--line); padding-block: 1.5rem; }
+  .press__row { display: flex; align-items: baseline; gap: 1.5rem; flex-wrap: wrap; }
+  .press__eyebrow { margin: 0; }
+  .press__list { list-style: none; margin: 0; padding: 0; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+  .press__list li { font-family: var(--font-serif); font-size: 1.1rem; color: var(--ink); }
+
+  /* ---- Tablet ---- */
+  @media (min-width: 640px) {
+    .hero__actions { display: flex; align-items: center; gap: 2rem; }
+    .hero__actions .btn { width: auto; min-width: 240px; }
+    .designer__inner { grid-template-columns: 280px 1fr; gap: 2.5rem; }
+    .bride__quote { font-size: var(--display-sm); }
+  }
+
+  /* ---- Desktop ---- */
+  @media (min-width: 900px) {
+    .hero { display: grid; grid-template-columns: 1fr 1fr; }
+    .hero__media { aspect-ratio: auto; min-height: min(80vh, 760px); }
+    .hero__text {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 4rem clamp(2.5rem, 5vw, 5rem);
+    }
+    .hero__title { font-size: var(--display-lg); }
+
+    .manifesto__inner { text-align: center; }
+    .manifesto__inner .quote { max-width: 24ch; margin-inline: auto; }
+    .manifesto__inner p { margin-inline: auto; }
+
+    .sec { grid-template-columns: 1fr auto; grid-template-areas: 'head link' 'body body'; column-gap: 2rem; }
+    .sec__head h2 { margin-bottom: 2.5rem; }
+    .sec__link { align-self: end; margin: 0 0 2.5rem; }
+
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+    .step { display: block; padding: 0; border: 0; }
+    .step:first-child { border: 0; }
+    .step__thumb { aspect-ratio: 4 / 5; }
+    .step__label { left: 0.6rem; bottom: 0.5rem; font-size: var(--text-xs); }
+    .step__text { padding-top: 1rem; }
+
+    .strip { overflow: visible; margin-inline: 0; padding-inline: 0; scroll-snap-type: none; }
+    .strip__list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .card { flex: none; }
+    .card:nth-child(n + 4) { display: none; }
+    .strip__hint { display: none; }
+
+    .bride { display: grid; grid-template-columns: 1fr 1fr; }
+    .bride__media { aspect-ratio: auto; min-height: 520px; }
+    .bride__text { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 4rem clamp(2.5rem, 5vw, 5rem); }
+
+    .designer__inner { grid-template-columns: 320px 1fr; gap: 4rem; align-items: center; max-width: 960px; }
+    .designer__name { font-size: 2rem; }
+    .designer__text p { font-size: var(--text-base); }
+
+    .press { padding-block: 2rem; }
+    .press__list { gap: 2.5rem; }
+  }
+</style>

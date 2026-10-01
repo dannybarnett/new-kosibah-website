@@ -1,0 +1,262 @@
+---
+/**
+ * The Gowns: one editorial gallery with filters, then the collection index.
+ * Filtering is client-side (data-line / data-collection on each card) and
+ * honours ?line= and ?collection= in the URL.
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BookCta from '../components/BookCta.astro';
+import GownCard from '../components/GownCard.astro';
+
+const PAGE = 6;
+
+const collections = (await getCollection('collections')).sort((a, b) => a.data.order - b.data.order);
+const byId = new Map(collections.map((c) => [c.id, c]));
+const gowns = (await getCollection('gowns')).sort((a, b) => a.data.order - b.data.order);
+
+const filters = [
+  { line: 'all', label: 'All' },
+  { line: 'couture', label: 'Couture' },
+  { line: 'asheyori-eji', label: 'Asheyori Eji' },
+  { line: 'mother-of-the-bride', label: 'Mother of the Bride' },
+] as const;
+
+/** Where a collection row sends you: the ready-to-wear and MOTB rows map to a line, the rest to a collection. */
+function collectionHref(c: (typeof collections)[number]) {
+  if (c.data.kind === 'ready-to-wear') return '/gowns?line=asheyori-eji';
+  if (c.data.kind === 'mother-of-the-bride') return '/gowns?line=mother-of-the-bride';
+  return `/gowns?collection=${c.id}`;
+}
+---
+<BaseLayout
+  title="Gowns"
+  description="Couture gowns drawn from nothing, and Asheyori Eji, the ready-to-wear line cut with the same hourglass fit. Every gown here can be the starting point for yours."
+>
+  <section class="section gowns">
+    <div class="container">
+      <p class="eyebrow">The Gowns</p>
+      <h1 class="gowns__title">Couture, made to measure, and ready to wear.</h1>
+      <p class="gowns__intro">
+        Every gown here can be the starting point for yours. Couture is drawn from nothing. Asheyori Eji is the label's
+        ready-to-wear answer, cut with the same hourglass fit.
+      </p>
+
+      <div class="gown-filter" role="group" aria-label="Filter gowns">
+        {filters.map((f) => (
+          <button type="button" data-line={f.line} aria-pressed={f.line === 'all' ? 'true' : 'false'}>{f.label}</button>
+        ))}
+      </div>
+
+      <p class="gown-status" hidden>
+        <span class="gown-status__text"></span>
+        <a href="/gowns">All gowns</a>
+      </p>
+
+      <ul class="gown-grid">
+        {gowns.map((gown, i) => {
+          const collection = byId.get(gown.data.collection.id);
+          if (!collection) return null;
+          return (
+            <li
+              class:list={['gown-grid__item', { 'is-more': i >= PAGE }]}
+              data-line={gown.data.line}
+              data-collection={collection.id}
+            >
+              <GownCard
+                gown={gown}
+                collection={collection}
+                wide={i % 3 === 0}
+                wideDesktop={i % 7 === 0}
+                loading={i < 2 ? 'eager' : 'lazy'}
+                as="h2"
+              />
+            </li>
+          );
+        })}
+      </ul>
+
+      <p class="gown-empty" hidden>Photographs to come. Ask at a consultation.</p>
+
+      {gowns.length > PAGE && (
+        <button class="btn btn--block gown-more" type="button">Show more</button>
+      )}
+    </div>
+  </section>
+
+  <section class="section section--deep gown-collections">
+    <div class="container">
+      <p class="eyebrow">By collection</p>
+      <ul class="gown-collections__list">
+        {collections.map((c) => (
+          <li>
+            <a class="gown-colrow" href={collectionHref(c)} data-collection={c.id} data-name={c.data.name}>
+              <span class="gown-colrow__name">{c.data.name}</span>
+              <span class="eyebrow gown-colrow__label">{c.data.label}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <BookCta
+    title="None of these is your gown. Yours is still a blank page."
+    body="Bring what you love here to a consultation and Yemi will draw from it."
+  />
+</BaseLayout>
+
+<script>
+  const grid = document.querySelector<HTMLUListElement>('.gown-grid');
+  if (grid) {
+    const PAGE = 6;
+    const items = Array.from(grid.querySelectorAll<HTMLLIElement>('.gown-grid__item'));
+    const pills = Array.from(document.querySelectorAll<HTMLButtonElement>('.gown-filter button'));
+    const more = document.querySelector<HTMLButtonElement>('.gown-more');
+    const empty = document.querySelector<HTMLElement>('.gown-empty');
+    const status = document.querySelector<HTMLElement>('.gown-status');
+    const statusText = status?.querySelector<HTMLElement>('.gown-status__text');
+    const rows = Array.from(document.querySelectorAll<HTMLAnchorElement>('.gown-colrow'));
+
+    const lines = pills.map((b) => b.dataset.line ?? 'all');
+    let line = 'all';
+    let collection = '';
+    let expanded = false;
+
+    function apply(sync: boolean) {
+      let matched = 0;
+      let shown = 0;
+      for (const li of items) {
+        const ok =
+          (line === 'all' || li.dataset.line === line) && (!collection || li.dataset.collection === collection);
+        const visible = ok && (expanded || matched < PAGE);
+        if (ok) matched++;
+        li.classList.remove('is-more');
+        li.classList.toggle('is-hidden', !visible);
+        const card = li.querySelector<HTMLElement>('.gown-card');
+        if (card && visible) {
+          card.toggleAttribute('data-wide', shown % 3 === 0);
+          card.toggleAttribute('data-wide-desktop', shown % 7 === 0);
+          shown++;
+        }
+      }
+
+      // Which pill is pressed. A collection filter presses the line its gowns belong to.
+      const pressed = collection
+        ? items.find((li) => li.dataset.collection === collection)?.dataset.line ?? ''
+        : line;
+      for (const b of pills) b.setAttribute('aria-pressed', String(b.dataset.line === pressed));
+
+      if (empty) empty.hidden = matched > 0;
+      if (more) {
+        if (expanded) more.remove();
+        else more.hidden = matched <= PAGE;
+      }
+      if (status && statusText) {
+        const row = rows.find((r) => r.dataset.collection === collection);
+        status.hidden = !collection;
+        statusText.textContent = row ? `The ${row.dataset.name} collection` : collection ? `The ${collection} collection` : '';
+      }
+
+      if (sync) {
+        const url = new URL(location.href);
+        url.search = '';
+        if (collection) url.searchParams.set('collection', collection);
+        else if (line !== 'all') url.searchParams.set('line', line);
+        history.replaceState(null, '', url);
+      }
+    }
+
+    // Initial state from the URL.
+    const params = new URLSearchParams(location.search);
+    const qCollection = params.get('collection') ?? '';
+    const qLine = params.get('line') ?? '';
+    if (qCollection) collection = qCollection;
+    else if (lines.includes(qLine)) line = qLine;
+    apply(false);
+
+    for (const b of pills) {
+      b.addEventListener('click', () => {
+        line = b.dataset.line ?? 'all';
+        collection = '';
+        apply(true);
+        grid.scrollIntoView({ block: 'nearest' });
+      });
+    }
+    more?.addEventListener('click', () => {
+      const hiddenBefore = items.filter((li) => li.classList.contains('is-hidden') || li.classList.contains('is-more'));
+      expanded = true;
+      apply(false);
+      const first = hiddenBefore.find((li) => !li.classList.contains('is-hidden'));
+      first?.querySelector<HTMLElement>('a')?.focus({ preventScroll: true });
+    });
+
+    // Collection rows on this page filter in place rather than reloading.
+    for (const r of rows) {
+      r.addEventListener('click', (e) => {
+        const url = new URL(r.href, location.href);
+        if (url.pathname !== location.pathname) return;
+        e.preventDefault();
+        const c = url.searchParams.get('collection') ?? '';
+        const l = url.searchParams.get('line') ?? '';
+        collection = c;
+        line = lines.includes(l) ? l : 'all';
+        apply(true);
+        document.querySelector<HTMLElement>('.gown-filter')?.scrollIntoView({ block: 'start' });
+      });
+    }
+  }
+</script>
+
+<style>
+  .gowns__title { max-width: 14ch; }
+  .gowns__intro { margin-bottom: 2rem; }
+
+  /* Filter pills: real buttons, the pressed one ink-filled */
+  .gown-filter { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .gown-filter button {
+    min-height: var(--tap); padding: 0 1rem;
+    font-family: var(--font-sans); font-size: var(--text-xs); font-weight: 500;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    background: transparent; color: var(--ink); border: 1px solid var(--ink);
+    cursor: pointer; transition: background .2s, color .2s;
+  }
+  .gown-filter button:hover { background: var(--chalk-deep); }
+  .gown-filter button[aria-pressed="true"] { background: var(--ink); color: var(--chalk); }
+
+  .gown-status { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: baseline; font-size: var(--text-sm); margin-bottom: 1.5rem; }
+  .gown-status a { font-size: var(--text-xs); font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; border-bottom: 1px solid currentColor; }
+
+  /* Card grid: two columns on the phone, every third card full width */
+  .gown-grid {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 1rem;
+  }
+  .gown-grid__item.is-more, .gown-grid__item.is-hidden { display: none; }
+  .gown-grid__item:has(> :global(.gown-card[data-wide])) { grid-column: 1 / -1; }
+
+  .gown-empty { padding-block: 2rem; color: var(--ink-mute); }
+  .gown-more { margin-top: 2.5rem; }
+
+  /* Collection index */
+  .gown-collections__list { list-style: none; margin: 0; padding: 0; }
+  .gown-collections__list li + li { border-top: 1px solid var(--line); }
+  .gown-colrow {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+    min-height: var(--tap); padding-block: 0.85rem; text-decoration: none;
+  }
+  .gown-colrow__name { font-family: var(--font-serif); font-size: 1.375rem; line-height: 1.2; }
+  .gown-colrow__label { margin: 0; text-align: right; flex-shrink: 0; }
+  .gown-colrow:hover .gown-colrow__name { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+
+  @media (min-width: 768px) {
+    .gowns__intro { margin-bottom: 2.5rem; }
+    .gown-filter { margin-bottom: 2.5rem; }
+    .gown-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3rem 1.5rem; }
+    .gown-grid__item:has(> :global(.gown-card[data-wide])) { grid-column: auto; }
+    .gown-grid__item:has(> :global(.gown-card[data-wide-desktop])) { grid-column: span 2; }
+    .gown-more { width: auto; min-width: 280px; margin-inline: auto; }
+    .gown-collections__list { max-width: 720px; }
+    .gown-colrow__name { font-size: 1.625rem; }
+  }
+</style>

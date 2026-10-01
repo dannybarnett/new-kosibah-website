@@ -1,0 +1,97 @@
+---
+/**
+ * One gown in a grid. A 4:5 portrait, the serif name and a quiet label
+ * built from the collection and style number ("Asheyori Eji · 2201", "Couture · Turner").
+ *
+ * `compact` drops the label (used for "Also in the collection").
+ * `wide`/`wideDesktop` mark the card to span columns in the gallery's initial, no-JS state;
+ * the gallery script re-assigns these after filtering.
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  gown: CollectionEntry<'gowns'>;
+  collection: CollectionEntry<'collections'>;
+  compact?: boolean;
+  wide?: boolean;
+  wideDesktop?: boolean;
+  sizes?: string;
+  loading?: 'lazy' | 'eager';
+  /** Heading level for the name. */
+  as?: 'h2' | 'h3';
+}
+
+const { gown, collection, compact = false, wide = false, wideDesktop = false, loading = 'lazy', as: Tag = 'h3' } = Astro.props;
+const { name, line, styleNumber, images } = gown.data;
+
+const lineLabels: Record<typeof line, string> = {
+  couture: 'Couture',
+  'asheyori-eji': 'Asheyori Eji',
+  'mother-of-the-bride': 'Mother of the bride',
+};
+const lineLabel = lineLabels[line];
+const label = styleNumber
+  ? `${collection.data.name} · ${styleNumber}`
+  : collection.data.name === lineLabel
+    ? lineLabel
+    : `${lineLabel} · ${collection.data.name}`;
+
+const defaultSizes = compact
+  ? '(min-width: 900px) 200px, 30vw'
+  : wideDesktop
+    ? '(min-width: 1200px) 760px, (min-width: 768px) 66vw, 100vw'
+    : wide
+      ? '(min-width: 1200px) 380px, (min-width: 768px) 33vw, 100vw'
+      : '(min-width: 1200px) 380px, (min-width: 768px) 33vw, 50vw';
+const sizes = Astro.props.sizes ?? defaultSizes;
+const lead = images[0];
+---
+<a
+  class:list={['gown-card', { 'gown-card--compact': compact }]}
+  href={`/gowns/${gown.id}`}
+  data-line={line}
+  data-collection={collection.id}
+  data-wide={wide ? '' : undefined}
+  data-wide-desktop={wideDesktop ? '' : undefined}
+>
+  <Image
+    class="gown-card__img"
+    src={lead.src}
+    alt={lead.alt}
+    width={800}
+    height={1000}
+    widths={[320, 480, 640, 800, 933]}
+    sizes={sizes}
+    fit="cover"
+    position="top"
+    loading={loading}
+  />
+  <div class="gown-card__meta">
+    <Tag class="gown-card__name">{name}</Tag>
+    {!compact && <p class="eyebrow gown-card__label">{label}</p>}
+  </div>
+</a>
+
+<style>
+  .gown-card { display: block; text-decoration: none; color: var(--ink); }
+  .gown-card__img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: top; background: var(--chalk-deep); }
+  .gown-card__meta {
+    display: flex; flex-direction: column; gap: 0.25rem;
+    padding-top: 0.75rem; min-height: var(--tap);
+  }
+  .gown-card__name { font-size: 1.375rem; line-height: 1.2; margin: 0; }
+  .gown-card__label { margin: 0; line-height: 1.5; }
+  /* Wide cards put the label on the right of the name. */
+  .gown-card[data-wide] .gown-card__meta { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 1rem; }
+  .gown-card[data-wide] .gown-card__name { font-size: 1.625rem; }
+  .gown-card[data-wide] .gown-card__label { text-align: right; }
+  @media (min-width: 768px) {
+    .gown-card__meta { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 1rem; }
+    .gown-card__label { text-align: right; }
+    .gown-card[data-wide-desktop] .gown-card__name { font-size: 1.75rem; }
+  }
+  .gown-card:hover .gown-card__name, .gown-card:focus-visible .gown-card__name { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+  .gown-card--compact .gown-card__name { font-size: 1.125rem; }
+  .gown-card--compact .gown-card__meta { padding-top: 0.5rem; }
+</style>

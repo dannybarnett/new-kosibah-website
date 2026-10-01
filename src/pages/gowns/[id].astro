@@ -1,0 +1,232 @@
+---
+/**
+ * One gown. Lead image, the other angles, the notes, a spec table and an
+ * Enquire button that pre-fills the booking form with the gown's name.
+ */
+import { getCollection, getEntry, render } from 'astro:content';
+import { Image, getImage } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BookCta from '../../components/BookCta.astro';
+import GownCard from '../../components/GownCard.astro';
+import { site } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const gowns = await getCollection('gowns');
+  return gowns.map((gown) => ({ params: { id: gown.id }, props: { gown } }));
+}
+
+interface Props { gown: CollectionEntry<'gowns'> }
+const { gown } = Astro.props;
+const { name, line, styleNumber, fabric, silhouette, made, images } = gown.data;
+
+const collection = await getEntry('collections', gown.data.collection.id);
+if (!collection) throw new Error(`Gown "${gown.id}" references unknown collection "${gown.data.collection.id}"`);
+
+const { Content } = await render(gown);
+
+const kindLabels: Record<typeof collection.data.kind, string> = {
+  couture: 'Couture',
+  'ready-to-wear': 'Ready to wear',
+  'made-to-measure': 'Made to measure',
+  'mother-of-the-bride': 'Mother of the bride',
+};
+const kindLabel = kindLabels[collection.data.kind];
+const eyebrow = [collection.data.name, styleNumber, kindLabel].filter(Boolean).join(' · ');
+
+const [lead, ...angles] = images;
+
+const specs = [
+  { term: 'Fabric', value: fabric },
+  { term: 'Silhouette', value: silhouette },
+  { term: 'Made', value: made },
+  { term: 'Lead time', value: site.leadTime },
+].filter((s): s is { term: string; value: string } => Boolean(s.value));
+
+const note =
+  line === 'asheyori-eji'
+    ? 'Every Asheyori Eji gown is made to your measurements and can be adapted: sleeves, neckline, train, colour. Or bring it to a consultation as the starting point for something entirely yours.'
+    : 'This gown was drawn for one bride. Bring it to a consultation as a starting point and Yemi will draw yours from a blank page.';
+
+const enquireHref = `/book?gown=${encodeURIComponent(gown.id)}&name=${encodeURIComponent(name)}`;
+
+// Up to three others from the same collection.
+const siblings = (await getCollection('gowns', (g) => g.id !== gown.id && g.data.collection.id === collection.id))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 3);
+
+// Description: the gown's own notes when written, otherwise a sensible line.
+const body = gown.body?.trim() ?? '';
+const hasNotes = body.length > 0 && !body.startsWith('[');
+const description = hasNotes
+  ? body.replace(/\s+/g, ' ').slice(0, 155).replace(/\s\S*$/, '') + (body.length > 155 ? '…' : '')
+  : `${name}, from the ${collection.data.name} collection by Kosibah. ${kindLabel}, made to your measurements at Yemi Osunkoya's atelier in New York.`;
+
+const og = await getImage({ src: lead.src, width: 1200, height: 1500, fit: 'cover', position: 'top', format: 'jpg' });
+const ldImages = await Promise.all(
+  images.map(async (img) => new URL((await getImage({ src: img.src, width: 1200, format: 'jpg' })).src, Astro.site).href),
+);
+const product = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name,
+  description,
+  image: ldImages,
+  url: new URL(`/gowns/${gown.id}`, Astro.site).href,
+  ...(styleNumber ? { sku: styleNumber } : {}),
+  ...(fabric ? { material: fabric } : {}),
+  category: `${kindLabel} bridal gown`,
+  brand: { '@type': 'Brand', name: site.name },
+  isPartOf: { '@type': 'ProductCollection', name: `${collection.data.name} collection` },
+};
+---
+<BaseLayout title={name} description={description} image={og.src} jsonLd={[product]}>
+  <article class="gown">
+    <div class="container gown__layout">
+      <div class="gown__images">
+        <figure class="gown__lead">
+          <Image
+            src={lead.src}
+            alt={lead.alt}
+            width={1120}
+            height={1400}
+            widths={[480, 640, 800, 933]}
+            sizes="(min-width: 1200px) 660px, (min-width: 900px) 56vw, 100vw"
+            fit="cover"
+            position="top"
+            loading="eager"
+            fetchpriority="high"
+          />
+          {lead.angle && <figcaption class="eyebrow gown__angle">{lead.angle}</figcaption>}
+        </figure>
+
+        {angles.length > 0 && (
+          <ul class="gown__angles" aria-label={`${name}, other angles`}>
+            {angles.map((img) => (
+              <li>
+                <figure>
+                  <Image
+                    src={img.src}
+                    alt={img.alt}
+                    width={800}
+                    height={1000}
+                    widths={[320, 480, 640, 800]}
+                    sizes="(min-width: 1200px) 320px, (min-width: 900px) 27vw, 72vw"
+                    fit="cover"
+                    position="top"
+                    loading="lazy"
+                  />
+                  {img.angle && <figcaption class="eyebrow gown__angle">{img.angle}</figcaption>}
+                </figure>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div class="gown__text">
+        <p class="eyebrow gown__eyebrow">{eyebrow}</p>
+        <h1 class="gown__name">{name}</h1>
+        <div class="gown__body"><Content /></div>
+
+        {specs.length > 0 && (
+          <dl class="gown__specs">
+            {specs.map((s) => (
+              <div class="gown__spec">
+                <dt class="eyebrow">{s.term}</dt>
+                <dd>{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+
+        <p class="gown__note">{note}</p>
+
+        <a class="btn btn--book btn--block gown__enquire" href={enquireHref}>Enquire about {name}</a>
+        <a class="textlink" href={`/gowns?collection=${collection.id}`}>The full {collection.data.name} collection</a>
+      </div>
+    </div>
+
+    {siblings.length > 0 && (
+      <section class="section gown__also" aria-labelledby="also-heading">
+        <div class="container">
+          <h2 class="eyebrow" id="also-heading">Also in the collection</h2>
+          <ul class="gown__also-grid">
+            {siblings.map((g) => (
+              <li>
+                <GownCard gown={g} collection={collection} compact />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )}
+  </article>
+
+  <BookCta />
+</BaseLayout>
+
+<style>
+  .gown__layout { padding-inline: 0; }
+  .gown__images { display: grid; gap: 1rem; }
+  .gown__lead { margin: 0; }
+  .gown__lead img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: top; background: var(--chalk-deep); }
+  .gown__angle { margin: 0.5rem 0 0; padding-inline: var(--gutter); }
+
+  /* Other angles: a swipe strip on the phone */
+  .gown__angles {
+    list-style: none; margin: 0; padding: 0 var(--gutter);
+    display: flex; gap: 0.75rem; overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-padding-inline: var(--gutter);
+  }
+  .gown__angles::-webkit-scrollbar { display: none; }
+  .gown__angles li { flex: 0 0 72%; scroll-snap-align: start; }
+  .gown__angles figure { margin: 0; }
+  .gown__angles img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: top; background: var(--chalk-deep); }
+  .gown__angles .gown__angle { padding-inline: 0; }
+
+  .gown__text { padding: 2.5rem var(--gutter) 3rem; }
+  .gown__eyebrow { margin-bottom: 1rem; }
+  .gown__name { font-size: var(--display-lg); margin-bottom: 1rem; }
+  .gown__body :global(p:last-child) { margin-bottom: 0; }
+
+  /* Spec table: hairline rows */
+  .gown__specs { margin: 2rem 0; border-top: 1px solid var(--line); }
+  .gown__spec {
+    display: grid; grid-template-columns: minmax(6.5rem, 1fr) 2fr; gap: 1rem; align-items: baseline;
+    min-height: var(--tap); padding-block: 0.85rem; border-bottom: 1px solid var(--line);
+  }
+  .gown__spec dt { margin: 0; }
+  .gown__spec dd { margin: 0; color: var(--ink-soft); font-size: var(--text-sm); }
+
+  .gown__note { margin-bottom: 2rem; }
+  .gown__enquire { margin-bottom: 1.5rem; }
+
+  .gown__also { border-top: 1px solid var(--line); padding-block: 2.5rem 3rem; }
+  .gown__also-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
+
+  @media (min-width: 768px) {
+    .gown__layout { padding-inline: var(--gutter); }
+    .gown__angle { padding-inline: 0; }
+    .gown__angles { padding: 0; overflow: visible; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
+    .gown__angles li { flex: none; }
+    .gown__images { gap: 1.5rem; padding-top: 2rem; }
+    .gown__text { padding-inline: 0; }
+    .gown__also { padding-block: 4rem; }
+    .gown__also-grid { gap: 1.5rem; max-width: 720px; }
+  }
+
+  /* Desktop: images left, text right and sticky */
+  @media (min-width: 900px) {
+    .gown__layout {
+      display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 4rem; align-items: start;
+      padding-block: 3rem 4rem;
+    }
+    .gown__images { padding-top: 0; }
+    .gown__text { position: sticky; top: calc(72px + 2rem); padding-block: 0; }
+    .gown__name { font-size: var(--display-md); }
+  }
+  @media (min-width: 1100px) {
+    .gown__layout { gap: 6rem; }
+  }
+</style>

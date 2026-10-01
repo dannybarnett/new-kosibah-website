@@ -1,0 +1,202 @@
+---
+/**
+ * The Designer. Yemi Osunkoya's story since 1991, clients, milestones and the press list.
+ * Phone: one column, portrait at 4:5. Desktop: sticky portrait left, story right.
+ * Square-bracketed copy is a placeholder awaiting Yemi.
+ */
+import { getCollection } from 'astro:content';
+import { Picture, getImage } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BookCta from '../components/BookCta.astro';
+import { site } from '../lib/site';
+import portrait from '../assets/site/yemi.jpg';
+
+const title = 'Yemi Osunkoya';
+const description =
+  'Yemi Osunkoya, founder of Kosibah: thirty-five years of couture bridal, from London in 1991 to the atelier in New York.';
+
+const press = (await getCollection('press')).sort((a, b) => a.data.order - b.data.order);
+
+const social = await getImage({ src: portrait, width: 1200, format: 'jpg' });
+
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.designer,
+  jobTitle: 'Couture bridal designer',
+  worksFor: { '@type': 'Organization', name: site.name, url: Astro.site?.href },
+  image: new URL(social.src, Astro.site).href,
+  url: new URL('/yemi', Astro.site).href,
+  sameAs: [site.instagramUrl],
+};
+
+const story = [
+  {
+    label: 'London, 1991',
+    paras: [
+      'Yemi Osunkoya trained as a fashion illustrator and founded Kosibah in London in 1991. [Where he trained, and the early years of the label, from Yemi.]',
+      'Thirty-five years on, the atelier is in New York, on Manhattan Avenue in Brooklyn. [Why New York, and when, from Yemi.]',
+    ],
+  },
+  {
+    label: 'The sketch',
+    paras: [
+      'Every Kosibah gown begins as a drawing. Yemi sketches in front of the bride, in real time, while she talks: her figure, her venue, the hour of the ceremony, the traditions that matter to her family. The drawing is the brief, and it becomes the dress.',
+    ],
+  },
+  {
+    label: 'The hourglass',
+    paras: [
+      'The Kosibah hourglass is the signature fit, built in the corsetry rather than added over it. [One or two sentences on the corsetry and how the fit is achieved, from Yemi.]',
+    ],
+  },
+  {
+    label: 'Clients',
+    paras: [
+      'His clients include royal households in Nigeria and Ghana and senior staff of the British Royal Family. [Any further clients Yemi is happy to name.]',
+    ],
+  },
+];
+
+const milestones = [
+  { year: '1991', note: 'Kosibah founded in London' },
+  { year: '[Year]', note: '[First notable commission, from Yemi]' },
+  { year: '[Year]', note: '[Asheyori Eji collection launched]' },
+  { year: '[Year]', note: 'Atelier opens in New York' },
+  { year: '2026', note: 'Thirty-five years of couture' },
+];
+
+const isExternal = (url: string) => /^https?:\/\//.test(url) && !url.startsWith(Astro.site?.href ?? '');
+---
+<BaseLayout title={title} description={description} image={social.src} jsonLd={[person]}>
+  <section class="section yemi">
+    <div class="container yemi__grid">
+      <header class="yemi__head">
+        <p class="eyebrow">The Designer</p>
+        <h1 class="yemi__name">Yemi Osunkoya</h1>
+        <p class="quote yemi__standfirst">Thirty-five years of couture, from London to Brooklyn.</p>
+      </header>
+
+      <figure class="yemi__fig">
+        <div class="yemi__frame">
+          <Picture
+            src={portrait}
+            alt="Yemi Osunkoya, founder and designer of Kosibah"
+            formats={['avif', 'webp']}
+            widths={[400, 640, 933]}
+            sizes="(min-width: 900px) 40vw, 100vw"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+        <figcaption class="yemi__caption">Yemi Osunkoya · [Photo credit]</figcaption>
+      </figure>
+
+      <div class="yemi__body">
+        {story.map((s) => (
+          <section class="yemi__part">
+            <p class="eyebrow yemi__label">{s.label}</p>
+            {s.paras.map((p) => <p>{p}</p>)}
+          </section>
+        ))}
+
+        <section class="yemi__part yemi__milestones" aria-labelledby="milestones">
+          <p class="eyebrow yemi__label" id="milestones">Milestones</p>
+          <ol class="miles">
+            {milestones.map((m) => (
+              <li class="miles__row">
+                <span class="miles__year">{m.year}</span>
+                <span class="miles__note">{m.note}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--deep press" aria-labelledby="press">
+    <div class="container">
+      <p class="eyebrow">In the press</p>
+      <h2 id="press" class="press__title">Featured in</h2>
+      <ul class="press__list">
+        {press.map(({ data }) => (
+          <li class="press__row">
+            {data.url ? (
+              <a class="press__link" href={data.url} rel={isExternal(data.url) ? 'noopener' : undefined}>
+                <span class="press__outlet">{data.outlet}</span>
+                <span class="press__headline">{data.title}</span>
+              </a>
+            ) : (
+              <div class="press__link">
+                <span class="press__outlet">{data.outlet}</span>
+                <span class="press__headline">{data.title}</span>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <BookCta title="Meet Yemi." body="A private hour in Brooklyn or over Zoom. You leave with a sketch of your gown." />
+</BaseLayout>
+
+<style>
+  .yemi { padding-top: 3rem; }
+  .yemi__grid { display: grid; gap: 2.5rem; }
+
+  .yemi__name { margin-bottom: 1rem; }
+  .yemi__standfirst { font-size: 1.375rem; color: var(--ink-soft); margin: 0; }
+
+  .yemi__fig { margin: 0; }
+  .yemi__frame { aspect-ratio: 4 / 5; overflow: hidden; background: var(--chalk-deep); }
+  .yemi__frame :global(img) { width: 100%; height: 100%; aspect-ratio: auto; object-fit: cover; object-position: 50% 20%; }
+  .yemi__caption {
+    margin-top: 0.75rem; font-size: var(--text-xs); letter-spacing: 0.08em; color: var(--ink-mute);
+  }
+
+  .yemi__part { margin-bottom: 2.5rem; }
+  .yemi__part:last-child { margin-bottom: 0; }
+  .yemi__label { margin-bottom: 0.75rem; }
+  .yemi__part p:last-child { margin-bottom: 0; }
+
+  .miles { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .miles__row {
+    display: grid; grid-template-columns: 4.5rem 1fr; gap: 1rem; align-items: baseline;
+    padding-block: 0.9rem; border-bottom: 1px solid var(--line);
+  }
+  .miles__year { font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.2; color: var(--ink); }
+  .miles__note { font-size: var(--text-sm); color: var(--ink-soft); }
+
+  .press__title { margin-bottom: 2rem; }
+  .press__list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .press__row { border-bottom: 1px solid var(--line); }
+  .press__link {
+    display: grid; gap: 0.25rem; min-height: var(--tap); padding-block: 1rem;
+    color: inherit; text-decoration: none;
+  }
+  a.press__link:hover .press__headline, a.press__link:focus-visible .press__headline { text-decoration: underline; text-underline-offset: 0.2em; }
+  .press__outlet { font-family: var(--font-serif); font-size: 1.375rem; line-height: 1.2; color: var(--ink); }
+  .press__headline { font-size: var(--text-sm); color: var(--ink-soft); }
+
+  @media (min-width: 640px) {
+    .miles__row { grid-template-columns: 6rem 1fr; }
+    .press__link { grid-template-columns: minmax(10rem, 1fr) 2fr; gap: 2rem; align-items: baseline; }
+  }
+
+  @media (min-width: 900px) {
+    .yemi { padding-top: 4rem; }
+    .yemi__grid {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+      grid-template-rows: auto 1fr;
+      column-gap: 4rem; row-gap: 3rem;
+      align-items: start;
+    }
+    .yemi__fig { grid-column: 1; grid-row: 1 / span 2; position: sticky; top: calc(72px + 2rem); }
+    .yemi__frame { aspect-ratio: 2 / 3; }
+    .yemi__head { grid-column: 2; grid-row: 1; }
+    .yemi__body { grid-column: 2; grid-row: 2; }
+    .yemi__standfirst { font-size: 1.5rem; }
+  }
+</style>

@@ -1,0 +1,58 @@
+---
+/**
+ * Step 2 of the booking flow: the Cal.com inline embed.
+ * Hidden until Step 1 succeeds (JS adds `is-open`) or the URL targets #step-2
+ * (the no-JS path, after /api/lead redirects). The page script loads embed.js
+ * on reveal; until Cal reports `linkReady` a month-grid placeholder holds the space.
+ */
+interface Props {
+  /** Cal.com link, e.g. "kosibah/consultation". Set PUBLIC_CAL_LINK to change it. */
+  calLink: string;
+  /** Cal embed namespace. */
+  namespace?: string;
+}
+const { calLink, namespace = 'consultation' } = Astro.props;
+const calHref = `https://cal.com/${calLink}`;
+const days = Array.from({ length: 35 }, (_, i) => i);
+---
+<section id="step-2" class="sched" aria-labelledby="step-2-label" data-cal-link={calLink} data-cal-namespace={namespace}>
+  <p class="eyebrow" id="step-2-label">Step 2 of 2 · <span data-meeting-label>In person, Brooklyn</span></p>
+  <h2>Choose a time.</h2>
+  <p>Consultations last about an hour. Times are shown in Eastern time.</p>
+
+  <div class="sched__frame">
+    <div id="cal-inline" class="sched__cal" data-cal-namespace={namespace}></div>
+    <div class="sched__ghost" data-cal-placeholder aria-hidden="true">
+      <div class="sched__ghost-head"><span></span><span class="sched__ghost-month"></span><span></span></div>
+      <div class="sched__ghost-grid">
+        {['M','T','W','T','F','S','S'].map((d) => <b>{d}</b>)}
+        {days.map(() => <i></i>)}
+      </div>
+    </div>
+    <noscript>
+      <p class="sched__nojs">The calendar needs JavaScript. <a href={calHref}>Open it on Cal.com</a> to choose a time.</p>
+    </noscript>
+  </div>
+</section>
+
+<style>
+  /* Hidden until revealed by the page script or the no-JS redirect to #step-2 */
+  .sched:not(:target):not(.is-open) { display: none; }
+  .sched { scroll-margin-top: 72px; padding-top: 2.5rem; border-top: 1px solid var(--line); margin-bottom: 3rem; }
+  .sched h2 { font-size: var(--display-md); }
+  .sched__frame { position: relative; min-height: 560px; margin-top: 2rem; }
+  .sched__cal { position: relative; z-index: 1; min-height: 0; }
+  /* Cal injects an iframe; let it take the width and choose its own height */
+  .sched__cal :global(iframe) { width: 100% !important; }
+
+  .sched__ghost { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+  .sched__frame.is-ready .sched__ghost { display: none; }
+  .sched__ghost-head { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.75rem 1.25rem; }
+  .sched__ghost-head span { display: block; width: 14px; height: 14px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); transform: rotate(45deg); }
+  .sched__ghost-head span:last-child { transform: rotate(-135deg); }
+  .sched__ghost-month { width: 160px !important; height: 20px !important; border: 0 !important; transform: none !important; background: var(--chalk-deep); }
+  .sched__ghost-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .sched__ghost-grid b { height: 20px; font-size: var(--text-xs); font-weight: 400; letter-spacing: 0.22em; text-align: center; color: var(--line); }
+  .sched__ghost-grid i { display: block; aspect-ratio: 1; background: var(--chalk-deep); }
+  .sched__nojs { position: relative; z-index: 2; background: var(--chalk); padding: 1rem 0; }
+</style>

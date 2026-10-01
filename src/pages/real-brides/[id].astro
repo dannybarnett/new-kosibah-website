@@ -1,0 +1,95 @@
+---
+/**
+ * One bride's story: place, venue, line, photographer, quote, the written story,
+ * every photograph, and links to the brides either side of her in the running order.
+ */
+import { getCollection, render } from 'astro:content';
+import { Image, getImage } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BookCta from '../../components/BookCta.astro';
+import { brideLineLabel } from '../../components/BrideLines';
+
+export async function getStaticPaths() {
+  const brides = (await getCollection('brides')).sort((a, b) => a.data.order - b.data.order);
+  return brides.map((bride, i) => ({
+    params: { id: bride.id },
+    props: {
+      bride,
+      prev: brides[(i - 1 + brides.length) % brides.length],
+      next: brides[(i + 1) % brides.length],
+    },
+  }));
+}
+
+const { bride, prev, next } = Astro.props;
+const { name, venue, place, line, quote, photographer, images } = bride.data;
+const { Content } = await render(bride);
+
+const meta = [venue, brideLineLabel[line], photographer && `Photographs: ${photographer}`].filter(Boolean);
+const og = await getImage({ src: images[0].src, width: 1200, format: 'jpg' });
+const description = `${name}'s Kosibah wedding in ${venue}. A ${brideLineLabel[line].toLowerCase()} gown by Yemi Osunkoya, as it was worn.`;
+---
+<BaseLayout title={`${name} · Real Brides`} description={description} image={og.src}>
+  <article class="story">
+    <header class="section container story__head">
+      <p class="eyebrow">Real Brides · {place}</p>
+      <h1>{name}</h1>
+      <p class="eyebrow story__meta">{meta.join(' · ')}</p>
+      {quote && <p class="quote">“{quote}”</p>}
+      <div class="story__body">
+        <Content />
+      </div>
+    </header>
+
+    <div class="container">
+      <ul class="set" data-single={images.length === 1 || undefined}>
+        {images.map((img, i) => (
+          <li class="set__item">
+            <Image
+              src={img.src}
+              alt={img.alt}
+              widths={[480, 780, 1100, 1400]}
+              sizes="(min-width: 900px) min(50vw, 580px), 100vw"
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchpriority={i === 0 ? 'high' : undefined}
+            />
+          </li>
+        ))}
+      </ul>
+
+      <nav class="siblings" aria-label="More brides">
+        <a class="textlink" href={`/real-brides/${prev.id}`} rel="prev">Previous · {prev.data.name}</a>
+        <a class="textlink" href={`/real-brides/${next.id}`} rel="next">Next · {next.data.name}</a>
+      </nav>
+    </div>
+  </article>
+
+  <BookCta />
+</BaseLayout>
+
+<style>
+  .story__head { padding-block: 3rem 2.5rem; }
+  .story__head h1 { font-size: var(--display-lg); }
+  .story__meta { margin-bottom: 2rem; }
+  .story__body { max-width: var(--measure); }
+  .story__body :global(p:last-child) { margin-bottom: 0; }
+
+  .set { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gutter); }
+  .set__item { margin: 0; }
+  .set img { width: 100%; height: auto; }
+
+  .siblings {
+    display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;
+    padding-block: 3rem 4rem;
+  }
+
+  @media (min-width: 768px) {
+    .story__head { padding-block: 5rem 4rem; }
+    .siblings { padding-block: 4rem 6rem; }
+  }
+  @media (min-width: 900px) {
+    .set { display: block; columns: 2; column-gap: var(--gutter); }
+    .set__item { break-inside: avoid; margin-bottom: var(--gutter); }
+    .set[data-single] { columns: 1; max-width: 760px; }
+  }
+</style>

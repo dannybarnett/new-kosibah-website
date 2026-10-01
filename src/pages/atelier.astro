@@ -1,0 +1,211 @@
+---
+/**
+ * The Atelier: how a couture gown is made, in six numbered stages.
+ * Five of the six stage photographs are pending the atelier shoot; they render as
+ * tinted placeholder blocks with a shot-list label so the page doubles as a brief
+ * for the photographer. Swap `photo` in for `placeholder` as the pictures arrive.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BookCta from '../components/BookCta.astro';
+import { site } from '../lib/site';
+import hero from '../assets/gowns/ronke/detail.jpg';
+import finishing from '../assets/gowns/tinuke/front-detail.jpg';
+
+type Stage = {
+  title: string;
+  text: string;
+  /** Pending photograph. `tint` is the block colour; `dark` flips the label to chalk. */
+  placeholder?: { label: string; tint: string; dark?: boolean };
+  /** A real photograph, once it exists. */
+  photo?: { src: ImageMetadata; alt: string };
+};
+
+const stages: Stage[] = [
+  {
+    title: 'The conversation',
+    placeholder: { label: 'Photo · Yemi and a bride, sketchbook open', tint: 'var(--line)' },
+    text: 'Your date, your venue, the hour of the ceremony, the traditions your family keeps. Yemi listens, and starts to draw while you talk.',
+  },
+  {
+    title: 'The sketch',
+    placeholder: { label: 'Photo · The finished illustration, pen and wash', tint: '#cfc9bf' },
+    text: 'A trained fashion illustrator, Yemi draws the gown in front of you in real time and in full detail, so you can see the dress before it exists. You leave the first appointment with it.',
+  },
+  {
+    title: 'Fabric and embellishment',
+    placeholder: { label: 'Photo · Bolts of silk, lace and beaded appliqué', tint: '#b9b3a7' },
+    text: 'Silk faille, tulle, French lace, hand-beaded appliqué. Every fabric is chosen against the sketch and against your skin, in the atelier’s light.',
+  },
+  {
+    title: 'The toile',
+    placeholder: { label: 'Photo · Calico toile on the stand, chalk marks', tint: 'var(--line)' },
+    text: 'Before any silk is cut, the gown is made once in calico to your measurements. The toile is where the silhouette is decided, pinned and re-pinned on you.',
+  },
+  {
+    title: 'The fittings',
+    placeholder: { label: 'Photo · A fitting in the mirror, pins in hand', tint: '#3a3836', dark: true },
+    text: 'A series of fittings in the atelier, or by arrangement where you are. Each one brings the gown closer to the body it was drawn for. The Kosibah hourglass is built here, in the corsetry.',
+  },
+  {
+    title: 'Hand finishing',
+    photo: { src: finishing, alt: 'Beaded lace appliqué hand-sewn along the seam lines of a silk bodice, with a satin sash at the waist.' },
+    text: 'Appliqués are placed and sewn by hand along the seam lines. Beading, hems, linings and closures are finished the way they have been since 1991. Then the last fitting, and the gown is yours.',
+  },
+];
+
+const title = 'The Atelier';
+const description =
+  'How a Kosibah couture gown is made: the conversation, the sketch, fabric, the toile, fittings and hand finishing at Yemi Osunkoya’s atelier.';
+
+const howTo = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'How a Kosibah couture gown is made',
+  description,
+  step: stages.map((s, i) => ({
+    '@type': 'HowToStep',
+    position: i + 1,
+    name: s.title,
+    text: s.text,
+  })),
+};
+---
+<BaseLayout title={title} description={description} jsonLd={[howTo]}>
+  <div class="hero">
+    <Image
+      src={hero}
+      alt="Hand-beaded floral appliqué on a sheer tulle bodice, seen close."
+      width={933}
+      height={1166}
+      fit="cover"
+      position="top"
+      widths={[480, 800, 933]}
+      sizes="(min-width: 1200px) 1200px, 100vw"
+      loading="eager"
+      fetchpriority="high"
+    />
+  </div>
+
+  <section class="section intro">
+    <div class="container">
+      <p class="eyebrow">The Atelier</p>
+      <h1>Made by hand, for one woman.</h1>
+      <p class="intro__text">
+        Haute couture is slow on purpose. A Kosibah gown is drawn, cut, fitted and finished in the
+        atelier, by the same hands, from the first sketch to the last stitch. This is how it happens.
+      </p>
+    </div>
+  </section>
+
+  <section class="stages" aria-label="The six stages">
+    <ol class="container stages__list">
+      {stages.map((s, i) => (
+        <li class="stage">
+          <div class="stage__media">
+            {s.photo ? (
+              <Image
+                src={s.photo.src}
+                alt={s.photo.alt}
+                width={800}
+                height={1000}
+                fit="cover"
+                widths={[400, 800]}
+                sizes="(min-width: 900px) 50vw, 100vw"
+              />
+            ) : (
+              <div
+                class="stage__placeholder"
+                data-dark={s.placeholder?.dark || undefined}
+                style={`background:${s.placeholder?.tint}`}
+              >
+                <span class="eyebrow stage__shot">{s.placeholder?.label}</span>
+              </div>
+            )}
+          </div>
+          <div class="stage__body">
+            <h2 class="stage__title">
+              <span class="stage__num" aria-hidden="true">{i + 1}</span>
+              <span class="visually-hidden">Stage {i + 1}. </span>{s.title}
+            </h2>
+            <p class="stage__text">{s.text}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="section timing">
+    <div class="container">
+      <div class="timing__panel section--deep">
+        <p class="eyebrow">Timing</p>
+        <p class="timing__text">
+          Allow {site.leadTime} before your wedding date for couture. Gowns from the Asheyori Eji
+          ready-to-wear collection can be made to measure in less.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <BookCta
+    title="Start with the conversation."
+    body="A private hour with Yemi in Brooklyn or over Zoom. Weekends and evenings available."
+  />
+</BaseLayout>
+
+<style>
+  /* Hero: full bleed, 4:5 on the phone, a wider band once there is room */
+  .hero img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: top; }
+
+  .intro { padding-block: 3rem 1rem; }
+  .intro__text { font-size: var(--text-lg); line-height: 1.55; }
+
+  /* Stages */
+  .stages { padding-block: 2rem 3rem; }
+  .stages__list { list-style: none; margin: 0; display: grid; gap: 3.5rem; }
+  .stage { display: grid; gap: 1.25rem; }
+  .stage__media { aspect-ratio: 4 / 5; overflow: hidden; }
+  .stage__media img { width: 100%; height: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+
+  .stage__placeholder { position: relative; width: 100%; height: 100%; }
+  .stage__shot {
+    position: absolute; left: 1rem; bottom: 1rem; margin: 0;
+    font-size: 0.625rem; letter-spacing: 0.2em; line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .stage__placeholder[data-dark] .stage__shot { color: #cfcac2; }
+
+  .stage__title {
+    display: flex; align-items: baseline; gap: 0.75rem;
+    font-size: var(--display-sm); margin-bottom: 0.6em;
+  }
+  .stage__num { font-size: 0.7em; font-weight: 400; color: var(--ink-soft); flex: none; }
+  .stage__text { margin: 0; }
+
+  /* Timing note */
+  .timing { padding-block: 1rem 4rem; }
+  .timing__panel { border: 1px solid var(--line); padding: 1.5rem; }
+  .timing__panel .eyebrow { margin-bottom: 0.75rem; }
+  .timing__text { margin: 0; font-size: var(--text-sm); line-height: 1.7; }
+
+  /* Desktop: image and text side by side, alternating per stage */
+  @media (min-width: 900px) {
+    .hero img { aspect-ratio: 16 / 7; object-position: 50% 20%; }
+    .intro { padding-block: 5rem 2rem; }
+    .intro h1 { font-size: var(--display-lg); max-width: 14ch; }
+
+    .stages { padding-block: 3rem 5rem; }
+    .stages__list { gap: 6rem; }
+    .stage { grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+    .stage:nth-child(even) .stage__media { order: 2; }
+    .stage__body { max-width: var(--measure); }
+    .stage__title { display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 1.25rem; font-size: var(--display-md); }
+    .stage__num { font-size: 0.75em; }
+    .stage__text { font-size: var(--text-lg); line-height: 1.6; }
+
+    .timing { padding-block: 2rem 6rem; }
+    .timing__panel { max-width: calc(var(--measure) + 3rem); padding: 2rem 2.5rem; }
+    .timing__text { font-size: var(--text-base); }
+  }
+</style>

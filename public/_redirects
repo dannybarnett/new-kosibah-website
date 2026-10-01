@@ -1,0 +1,38 @@
+# Cloudflare Pages redirects. Old WordPress URLs to their new homes.
+# NOTE: this list is a best guess from the old site's menu. Export the real URL list
+# from WordPress (Tools > Export, or a sitemap crawl) and check every entry before launch.
+# Routes that exist on the new site (/real-brides, /gowns, /yemi, /atelier, /book) are not redirected.
+
+# Booking and contact
+/bookings            /book   301
+/bookings/           /book   301
+/contact             /book   301
+/contact-us          /book   301
+
+# Designer and press
+/the-founder         /yemi   301
+/about               /yemi   301
+/the-designer        /yemi   301
+/in-the-press        /yemi   301
+/press               /yemi   301
+
+# Gowns and collections
+/wedding-gowns       /gowns  301
+/collections         /gowns  301
+/collections/*       /gowns  301
+/asheyori-eji        /gowns?line=asheyori-eji        301
+/mother-of-the-bride /gowns?line=mother-of-the-bride 301
+/motb                /gowns?line=mother-of-the-bride 301
+
+# Real brides: the new site also uses /real-brides/<slug>, so no wildcard here.
+# Add one line per old story URL once the WordPress slugs are exported, e.g.
+# /real-brides/denise-lake-como   /real-brides/denise   301
+
+# Process and brand copy
+/the-art-of-the-dress /atelier 301
+/the-brand            /atelier 301
+
+# Retired sections
+/blog                /  301
+/blog/*              /  301
+/loungewear          /  301

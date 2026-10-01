@@ -1,0 +1,29 @@
+---
+/**
+ * Below the booking form: "Featured in" press row and the phone / Instagram line.
+ */
+import { site } from '../lib/site';
+---
+<aside class="baside" aria-label="Press and contact">
+  <div class="baside__press">
+    <p class="eyebrow">Featured in</p>
+    <ul class="baside__outlets" role="list">
+      {site.press.map((outlet) => <li>{outlet}</li>)}
+    </ul>
+  </div>
+  <p class="baside__talk">
+    Prefer to talk? <a href={site.phoneHref}>{site.phone}</a>, {site.hours}.
+    Or message the atelier on Instagram, <a href={site.instagramUrl} rel="me noopener">{site.instagram}</a>.
+  </p>
+</aside>
+
+<style>
+  .baside { border-top: 1px solid var(--line); padding-top: 2rem; }
+  .baside__press { display: flex; align-items: baseline; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .baside__press .eyebrow { margin: 0; }
+  .baside__outlets { display: flex; gap: 1.5rem; flex-wrap: wrap; list-style: none; margin: 0; padding: 0; }
+  .baside__outlets li { font-family: var(--font-serif); font-size: 1.125rem; color: var(--ink-soft); }
+  .baside__talk { font-size: var(--text-sm); margin: 0; }
+  .baside__talk a { color: var(--ink); text-decoration: none; display: inline-block; padding-block: 0.25rem; }
+  .baside__talk a:hover { text-decoration: underline; }
+</style>

@@ -1,0 +1,267 @@
+---
+/**
+ * /book — the one booking flow every channel lands on (site, Instagram bio, Meta ads).
+ * Minimal header and compact footer. Step 1 is the form (BookForm), Step 2 the Cal.com
+ * embed (BookScheduler), revealed in place once /api/lead has the details.
+ *
+ * Environment (build-time, PUBLIC_ so they reach the browser):
+ *   PUBLIC_CAL_LINK       Cal.com link, e.g. "kosibah/consultation" (default below).
+ *   PUBLIC_META_PIXEL_ID  Meta pixel id. The pixel renders on this page only, and only when set.
+ */
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BookForm from '../components/BookForm.astro';
+import BookScheduler from '../components/BookScheduler.astro';
+import BookAside from '../components/BookAside.astro';
+import yemi from '../assets/site/yemi.jpg';
+
+const CAL_LINK: string = import.meta.env.PUBLIC_CAL_LINK ?? 'kosibah/consultation';
+const PIXEL_ID: string | undefined = import.meta.env.PUBLIC_META_PIXEL_ID || undefined;
+
+const steps = [
+  'Tell us about the day. Yemi listens first.',
+  'He sketches while you talk. Bring anything you love.',
+  'You leave with a drawing of your gown, and a plan.',
+];
+---
+<BaseLayout
+  title="Book a consultation"
+  description="A private hour with Yemi Osunkoya at the Brooklyn atelier or over Zoom. No charge for the first conversation. Weekends and evenings available."
+  minimal
+>
+  <Fragment slot="head">
+    <!--
+      Meta pixel. Loads on /book only, and only when PUBLIC_META_PIXEL_ID is set at build time.
+      Browser events: Lead (after Step 1) and Schedule (on /book/confirmed). The server-side
+      Conversions API events live in functions/api/lead.ts and the Cal.com webhook (follow-up).
+    -->
+    {PIXEL_ID && (
+      <script is:inline define:vars={{ PIXEL_ID }}>
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', PIXEL_ID);
+        fbq('track', 'PageView');
+      </script>
+    )}
+    {PIXEL_ID && (
+      <noscript><img height="1" width="1" style="display:none" alt="" src={`https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1`} /></noscript>
+    )}
+    <link rel="preconnect" href="https://app.cal.com" />
+  </Fragment>
+
+  <div class="hero">
+    <Picture
+      src={yemi}
+      alt="Yemi Osunkoya at the atelier, a bride in a beaded gown behind him"
+      width={933}
+      height={840}
+      fit="cover"
+      position="top"
+      layout="full-width"
+      widths={[390, 640, 780, 1200]}
+      sizes="(min-width: 1200px) 1200px, 100vw"
+      formats={['avif', 'webp']}
+      loading="eager"
+      fetchpriority="high"
+    />
+  </div>
+
+  <section class="section book">
+    <div class="container book__col">
+      <p class="eyebrow">Consultations · Brooklyn and Zoom</p>
+      <h1>Book an hour with Yemi.</h1>
+      <p class="book__intro">A private consultation at the Brooklyn atelier, or over Zoom from wherever you are. Weekends and evenings available. There is no charge for the first conversation.</p>
+
+      <ol class="steps" aria-label="What happens in a consultation">
+        {steps.map((s, i) => (
+          <li><span class="steps__n" aria-hidden="true">{i + 1}</span><span>{s}</span></li>
+        ))}
+      </ol>
+
+      <BookForm />
+
+      <BookScheduler calLink={CAL_LINK} />
+
+      <BookAside />
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  /* Booking flow: validate, post to /api/lead, reveal Step 2, load Cal.com on demand. */
+  type Fbq = (...args: unknown[]) => void;
+  type CalApi = ((...args: unknown[]) => void) & { q?: unknown[]; ns?: Record<string, CalApi>; loaded?: boolean };
+  const w = window as unknown as { fbq?: Fbq; Cal?: CalApi };
+
+  const form = document.getElementById('lead-form') as HTMLFormElement | null;
+  const step2 = document.getElementById('step-2');
+  const frame = step2?.querySelector<HTMLElement>('.sched__frame');
+  if (form && step2 && frame) {
+    const params = new URLSearchParams(location.search);
+    const field = (name: string) => form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | null;
+    const note = document.getElementById('form-note') as HTMLParagraphElement;
+    const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+
+    // Prefill from the URL: utm_* and gown from a gown detail page.
+    for (const k of ['utm_source', 'utm_medium', 'utm_campaign', 'gown']) {
+      const v = params.get(k);
+      const el = field(k);
+      if (el && v) el.value = v.slice(0, 120);
+    }
+    const gownName = params.get('name');
+    const notes = field('notes');
+    if (gownName && notes && !notes.value) notes.value = `I'd like to talk about ${gownName.slice(0, 80)}.`;
+
+    // One id for the browser Lead event and the server-side one, so Meta de-duplicates.
+    const eventId = 'crypto' in window && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const eventField = field('eventId');
+    if (eventField) eventField.value = eventId;
+
+    // Inline validation
+    const setError = (input: HTMLElement | null, bad: boolean) => {
+      if (!input) return;
+      const err = document.getElementById(input.getAttribute('aria-describedby') || '');
+      input.setAttribute('aria-invalid', String(bad));
+      if (err) err.hidden = !bad;
+    };
+    const validate = () => {
+      const first = field('firstName') as HTMLInputElement;
+      const email = field('email') as HTMLInputElement;
+      const consent = field('consent') as HTMLInputElement;
+      const checks: [HTMLInputElement, boolean][] = [
+        [first, first.value.trim().length === 0],
+        [email, !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())],
+        [consent, !consent.checked],
+      ];
+      let firstBad: HTMLInputElement | null = null;
+      for (const [el, bad] of checks) {
+        setError(el, bad);
+        if (bad && !firstBad) firstBad = el;
+      }
+      firstBad?.focus();
+      return !firstBad;
+    };
+    for (const name of ['firstName', 'email', 'consent']) {
+      field(name)?.addEventListener('input', (e) => setError(e.target as HTMLElement, false));
+    }
+
+    // Step 2 reveal and Cal.com load
+    const ns = step2.dataset.calNamespace || 'consultation';
+    const calLink = step2.dataset.calLink || 'kosibah/consultation';
+    let revealed = false;
+    const reveal = (data: Record<string, string>) => {
+      if (revealed) return;
+      revealed = true;
+      const meeting = data.meeting === 'zoom' ? 'Over Zoom' : 'In person, Brooklyn';
+      const label = step2.querySelector('[data-meeting-label]');
+      if (label) label.textContent = meeting;
+      step2.classList.add('is-open');
+      submit.disabled = true;
+      submit.textContent = 'Saved. Choose a time below';
+      step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      loadCal({
+        name: data.firstName || '',
+        email: data.email || '',
+        notes: [`[${meeting}]`, data.weddingDate ? `Wedding: ${data.weddingDate}` : '', data.notes || ''].filter(Boolean).join(' — '),
+        meeting: data.meeting === 'zoom' ? 'zoom' : 'in-person',
+      });
+    };
+
+    const loadCal = (p: { name: string; email: string; notes: string; meeting: string }) => {
+      // Cal.com's loader, inlined: queue calls until embed.js arrives (inserted now, not at page load).
+      if (!w.Cal) {
+        const Cal: CalApi = function (this: unknown, ...ar: unknown[]) {
+          const cal = w.Cal as CalApi;
+          if (!cal.loaded) {
+            cal.ns = {};
+            cal.q = cal.q || [];
+            const s = document.createElement('script');
+            s.src = 'https://app.cal.com/embed/embed.js';
+            s.async = true;
+            document.head.appendChild(s);
+            cal.loaded = true;
+          }
+          if (ar[0] === 'init') {
+            const api: CalApi = function (...a: unknown[]) { (api.q as unknown[]).push(a); };
+            api.q = api.q || [];
+            const namespace = ar[1];
+            if (typeof namespace === 'string') {
+              cal.ns![namespace] = cal.ns![namespace] || api;
+              (cal.ns![namespace].q as unknown[]).push(ar);
+              (cal.q as unknown[]).push(['initNamespace', namespace]);
+            } else (cal.q as unknown[]).push(ar);
+            return;
+          }
+          (cal.q as unknown[]).push(ar);
+        };
+        w.Cal = Cal;
+      }
+      const Cal = w.Cal;
+      Cal('init', ns, { origin: 'https://app.cal.com' });
+      const api = Cal.ns![ns];
+      api('inline', {
+        elementOrSelector: '#cal-inline',
+        calLink,
+        config: { name: p.name, email: p.email, notes: p.notes, layout: 'month_view' },
+      });
+      api('ui', { hideEventTypeDetails: false, layout: 'month_view', cssVarsPerTheme: { light: { 'cal-brand': '#1a1a1a' } } });
+      const ready = () => frame.classList.add('is-ready');
+      api('on', { action: 'linkReady', callback: ready });
+      window.setTimeout(ready, 10000);
+      api('on', {
+        action: 'bookingSuccessful',
+        callback: (e: CustomEvent) => {
+          const d = (e.detail && (e.detail as { data?: Record<string, unknown> }).data) || {};
+          const booking = (d.booking || {}) as Record<string, unknown>;
+          const q = new URLSearchParams();
+          const date = (d.date as string) || (booking.startTime as string) || '';
+          if (date) q.set('date', date);
+          q.set('location', p.meeting);
+          if (typeof booking.uid === 'string') q.set('uid', booking.uid);
+          location.href = `/book/confirmed?${q.toString()}`;
+        },
+      });
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      note.hidden = true;
+      if (!validate()) return;
+      const data = Object.fromEntries(new FormData(form).entries()) as Record<string, string>;
+      if (data.company) return; // honeypot: do nothing, quietly
+      submit.disabled = true;
+      submit.textContent = 'One moment';
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ ...data, pageUrl: location.href }),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+      } catch {
+        note.textContent = "We couldn't save your details, but you can still choose a time.";
+        note.hidden = false;
+      }
+      if (w.fbq) w.fbq('track', 'Lead', {}, { eventID: eventId });
+      reveal(data);
+    });
+
+    // No-JS redirect lands here with JS after all: show the calendar without prefill.
+    if (location.hash === '#step-2') reveal({});
+  }
+</script>
+
+<style>
+  .hero { width: 100%; max-width: var(--max); margin-inline: auto; max-height: 70vh; overflow: hidden; background: var(--chalk-deep); }
+  .hero :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  @media (min-width: 900px) { .hero { height: clamp(360px, 56vh, 620px); } }
+
+  .book { padding-block: 2.5rem 3.5rem; }
+  .book__col { max-width: calc(var(--measure) + 2 * var(--gutter)); }
+  .book h1 { font-size: var(--display-md); }
+  .book__intro { margin-bottom: 2rem; }
+
+  .steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .steps li { display: flex; gap: 1.25rem; align-items: baseline; padding: 0.9rem 0; border-bottom: 1px solid var(--line); color: var(--ink-soft); font-size: var(--text-sm); }
+  .steps__n { font-family: var(--font-serif); font-size: 1.125rem; color: var(--ink); flex: none; width: 1ch; }
+  @media (min-width: 768px) { .book { padding-block: 3.5rem 5rem; } .steps li { font-size: var(--text-base); } }
+</style>

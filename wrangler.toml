@@ -1,0 +1,27 @@
+# Cloudflare Pages project config. Used by `npm run deploy` (wrangler pages deploy)
+# and by `wrangler pages dev dist` for testing functions/ locally.
+name = "kosibah"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-09-01"
+
+# Environment variables
+#
+# Build-time, public (prefixed PUBLIC_, baked into the HTML/JS by Astro). Set them as
+# plain variables in the Pages dashboard (Settings > Environment variables) or below under [vars]:
+#   PUBLIC_CAL_LINK        Cal.com link, e.g. "kosibah/consultation"
+#   PUBLIC_META_PIXEL_ID   Meta pixel id; the pixel renders on /book only when this is set
+#
+# Runtime secrets, read by functions/api/lead.ts. Never commit them. Set each with
+#   wrangler pages secret put NAME --project-name=kosibah
+# or in the Pages dashboard as encrypted variables. Locally, copy .dev.vars.example to .dev.vars.
+#   RESEND_API_KEY         Resend API key for the enquiry email
+#   LEAD_TO_EMAIL          Where enquiries go (comma-separate for several)
+#   LEAD_FROM_EMAIL        Verified sender, e.g. "Kosibah <bookings@kosibah.com>"
+#   SHEETS_WEBHOOK_URL     Google Apps Script web-app URL that appends a row to the leads sheet
+#   META_PIXEL_ID          Meta pixel id (same value as PUBLIC_META_PIXEL_ID)
+#   META_ACCESS_TOKEN      Conversions API system-user token
+#   META_TEST_EVENT_CODE   Optional, from Events Manager > Test events, while verifying
+
+[vars]
+# PUBLIC_CAL_LINK = "kosibah/consultation"
+# PUBLIC_META_PIXEL_ID = ""

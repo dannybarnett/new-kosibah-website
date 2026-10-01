@@ -1,0 +1,99 @@
+---
+/**
+ * Site header. Phone: hamburger, wordmark, BOOK. Desktop: wordmark, nav, oxblood button.
+ * `minimal` hides the menu (used on /book, which doubles as an ad landing page).
+ */
+import { nav, site } from '../lib/site';
+interface Props { minimal?: boolean; ctaLabel?: string; ctaHref?: string }
+const { minimal = false, ctaLabel = 'Book', ctaHref = '/book' } = Astro.props;
+const path = Astro.url.pathname;
+---
+<header class="hdr" data-minimal={minimal}>
+  <div class="container hdr__row">
+    {!minimal && (
+      <button class="hdr__menu" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Open menu">
+        <span></span><span></span>
+      </button>
+    )}
+    <a class="hdr__brand" href="/" aria-label={`${site.name} home`}>KOSIBAH</a>
+    {!minimal && (
+      <nav class="hdr__nav" aria-label="Primary">
+        {nav.map((n) => (
+          <a href={n.href} aria-current={path.startsWith(n.href) ? 'page' : undefined}>{n.label}</a>
+        ))}
+      </nav>
+    )}
+    <a class="hdr__cta" href={ctaHref}><span class="hdr__cta-short">{ctaLabel}</span><span class="hdr__cta-long">Book a consultation</span></a>
+  </div>
+  {!minimal && (
+    <div id="site-menu" class="hdr__sheet" hidden>
+      <nav class="container" aria-label="Primary, phone">
+        <a href="/">Home</a>
+        {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+        <a class="btn btn--book btn--block" href="/book">Book a consultation</a>
+      </nav>
+    </div>
+  )}
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('.hdr__menu');
+  const sheet = document.getElementById('site-menu');
+  if (btn && sheet) {
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!open));
+      btn.setAttribute('aria-label', open ? 'Open menu' : 'Close menu');
+      sheet.hidden = open;
+      document.body.classList.toggle('menu-open', !open);
+    });
+  }
+</script>
+
+<style>
+  .hdr { position: sticky; top: 0; z-index: 50; background: var(--chalk); border-bottom: 1px solid var(--line); }
+  .hdr__row { display: grid; grid-template-columns: var(--tap) 1fr auto; align-items: center; min-height: 56px; gap: 0.5rem; }
+  .hdr[data-minimal] .hdr__row { grid-template-columns: var(--tap) 1fr auto; }
+  .hdr[data-minimal] .hdr__row::before { content: ''; }
+  .hdr__brand {
+    justify-self: center; font-family: var(--font-serif); font-size: 1.125rem; letter-spacing: 0.32em;
+    text-decoration: none; color: var(--ink); padding-left: 0.32em;
+  }
+  .hdr__menu {
+    width: var(--tap); height: var(--tap); margin-left: calc(-1 * (var(--tap) - 24px) / 2);
+    display: grid; place-content: center; gap: 6px; background: none; border: 0; cursor: pointer; padding: 0;
+  }
+  .hdr__menu span { display: block; width: 22px; height: 1px; background: var(--ink); transition: transform .2s; }
+  .hdr__menu[aria-expanded="true"] span:first-child { transform: translateY(3.5px) rotate(45deg); }
+  .hdr__menu[aria-expanded="true"] span:last-child { transform: translateY(-3.5px) rotate(-45deg); }
+  .hdr__nav { display: none; }
+  .hdr__cta {
+    justify-self: end; display: inline-flex; align-items: center; min-height: var(--tap);
+    font-size: var(--text-xs); font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none;
+  }
+  .hdr__cta-long { display: none; }
+  .hdr__sheet { border-top: 1px solid var(--line); background: var(--chalk); }
+  .hdr__sheet nav { display: grid; gap: 0; padding-block: 0.5rem 1.25rem; }
+  .hdr__sheet nav > a:not(.btn) {
+    display: flex; align-items: center; min-height: 52px; font-family: var(--font-serif); font-size: 1.5rem;
+    text-decoration: none; border-bottom: 1px solid var(--line);
+  }
+  .hdr__sheet .btn { margin-top: 1.25rem; }
+
+  @media (min-width: 900px) {
+    .hdr__row { grid-template-columns: auto 1fr auto; min-height: 72px; }
+    .hdr__menu, .hdr__sheet { display: none; }
+    .hdr__brand { justify-self: start; padding-left: 0; font-size: 1.25rem; }
+    .hdr__nav { display: flex; justify-content: center; gap: 2.25rem; }
+    .hdr__nav a {
+      font-size: var(--text-xs); font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none;
+      padding-block: 0.5rem; border-bottom: 1px solid transparent;
+    }
+    .hdr__nav a:hover, .hdr__nav a[aria-current="page"] { border-bottom-color: var(--ink); }
+    .hdr__cta { background: var(--oxblood); color: #fff; padding: 0 1.5rem; }
+    .hdr__cta:hover { background: var(--oxblood-deep); }
+    .hdr__cta-short { display: none; }
+    .hdr__cta-long { display: inline; }
+    .hdr[data-minimal] .hdr__cta { background: none; color: var(--ink); padding: 0; }
+  }
+</style>

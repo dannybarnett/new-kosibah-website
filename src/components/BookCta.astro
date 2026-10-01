@@ -1,0 +1,27 @@
+---
+/**
+ * The closing "Consultations" block used at the foot of every content page.
+ * Dark ground, serif headline, oxblood button rendered chalk on ink.
+ */
+interface Props { title?: string; body?: string; label?: string; href?: string }
+const {
+  title = 'In Brooklyn, or over Zoom. Weekends and evenings too.',
+  body = 'A private hour with Yemi. Bring your date, your venue and whatever has caught your eye. Leave with a sketch.',
+  label = 'Book a consultation',
+  href = '/book',
+} = Astro.props;
+---
+<section class="section section--ink cta">
+  <div class="container">
+    <p class="eyebrow">Consultations</p>
+    <h2 class="cta__title">{title}</h2>
+    {body && <p class="cta__body">{body}</p>}
+    <a class="btn btn--book cta__btn" href={href}>{label}</a>
+  </div>
+</section>
+<style>
+  .cta__title { font-size: var(--display-md); max-width: 18ch; }
+  .cta__body { margin-bottom: 2rem; }
+  .cta__btn { width: 100%; }
+  @media (min-width: 640px) { .cta__btn { width: auto; min-width: 280px; } }
+</style>

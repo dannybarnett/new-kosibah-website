@@ -1,0 +1,81 @@
+---
+/**
+ * Shell for every page. Pass `minimal` for the booking page (no menu, compact footer).
+ */
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../lib/site';
+
+interface Props {
+  title: string;
+  description: string;
+  minimal?: boolean;
+  /** Absolute or site-relative path to a social image. */
+  image?: string;
+  /** Extra JSON-LD objects to emit. */
+  jsonLd?: Record<string, unknown>[];
+  /** Hide the closing CTA? Pages render their own; layout only wraps. */
+}
+const { title, description, minimal = false, image, jsonLd = [] } = Astro.props;
+const fullTitle = title === site.name ? title : `${title} · ${site.name}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = image ? new URL(image, Astro.site).href : undefined;
+
+const localBusiness = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: 'Kosibah',
+  description: 'Couture bridal designer. Gowns drawn, cut and finished by hand at Yemi Osunkoya\'s atelier in New York.',
+  url: Astro.site?.href,
+  telephone: site.phone,
+  email: site.email,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: site.address.line1,
+    addressLocality: 'New York',
+    addressRegion: 'NY',
+    postalCode: '10027',
+    addressCountry: 'US',
+  },
+  founder: { '@type': 'Person', name: site.designer },
+  sameAs: [site.instagramUrl, site.tiktokUrl, site.pinterestUrl],
+};
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#f5f3ee" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+    <script type="application/ld+json" set:html={JSON.stringify(localBusiness)} />
+    {jsonLd.map((obj) => <script type="application/ld+json" set:html={JSON.stringify(obj)} />)}
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <Header minimal={minimal} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer compact={minimal} />
+  </body>
+</html>
+
+<style is:global>
+  .skip { position: absolute; left: -999px; top: 0; background: var(--ink); color: var(--chalk); padding: .75rem 1rem; z-index: 100; }
+  .skip:focus { left: var(--gutter); }
+  body.menu-open { overflow: hidden; }
+</style>

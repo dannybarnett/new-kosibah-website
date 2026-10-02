@@ -14,6 +14,10 @@ export const site = {
   hours: 'Monday to Friday, 9 to 6 Eastern',
   /** Placeholder until Yemi confirms. Shown as-is on Atelier and gown pages. */
   leadTime: '[LEAD TIME]',
+  /** Placeholder until Yemi confirms starting prices for couture, Asheyori Eji and mother of the bride. */
+  investment: '[STARTING PRICES]',
+  /** The consultation promise, in one line. Shown under the main booking buttons. */
+  reassurance: 'Complimentary first consultation · Brooklyn or Zoom · Evenings and weekends',
   press: ['Vogue', 'CFDA', 'World Bride'],
 } as const;
 

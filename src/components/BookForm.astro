@@ -39,13 +39,13 @@ const { action = '/api/lead' } = Astro.props;
   </div>
 
   <div class="field">
-    <label class="field__label" for="phone">Phone or WhatsApp</label>
+    <label class="field__label" for="phone">Phone or WhatsApp <span class="field__hint">(optional)</span></label>
     <input class="field__input" id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" aria-describedby="err-phone" />
     <p class="field__error" id="err-phone" hidden>Please check the number.</p>
   </div>
 
   <div class="field">
-    <label class="field__label" for="wedding-date">Wedding date <span class="field__hint">(or roughly)</span></label>
+    <label class="field__label" for="wedding-date">Wedding date <span class="field__hint">(optional, roughly is fine)</span></label>
     <input class="field__input" id="wedding-date" name="weddingDate" type="text" placeholder="e.g. June 2027" autocomplete="off" />
   </div>
 

@@ -14,7 +14,7 @@
   --chalk-deep: #ece8e0;   /* alternate section ground, e.g. The Atelier strip */
   --ink: #1a1a1a;          /* type, dark sections */
   --ink-soft: #4a4846;     /* body copy */
-  --ink-mute: #7a7672;     /* eyebrows, captions */
+  --ink-mute: #6a6662;     /* eyebrows, captions. 4.5:1 or better on chalk and chalk-deep */
   --line: #d9d4ca;         /* hairlines */
   --oxblood: #6b1f2a;      /* booking action only */
   --oxblood-deep: #561822;

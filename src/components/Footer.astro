@@ -4,7 +4,7 @@ interface Props { compact?: boolean }
 const { compact = false } = Astro.props;
 const year = new Date().getFullYear();
 ---
-<footer class="ftr" data-compact={compact}>
+<footer class="ftr" data-compact={compact ? '' : undefined}>
   <div class="container">
     <p class="ftr__brand">KOSIBAH</p>
     {compact ? (

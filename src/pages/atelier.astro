@@ -71,6 +71,19 @@ const howTo = {
     text: s.text,
   })),
 };
+
+/* Practical questions. Square-bracketed answers are placeholders awaiting Yemi. */
+const faqs = [
+  { q: 'What does a gown cost?', a: site.investment },
+  {
+    q: 'How long does it take?',
+    a: `Allow ${site.leadTime} before your wedding date for couture. Gowns from the Asheyori Eji collection can be made to measure in less. If your date is sooner, ask: the atelier will tell you what is possible.`,
+  },
+  { q: 'How many fittings are there?', a: '[HOW MANY FITTINGS, AND HOW FAR APART]' },
+  { q: 'I live outside New York. How does it work?', a: '[HOW A DISTANT BRIDE IS MEASURED, FITTED AND RECEIVES HER GOWN, AND WHETHER ANY TRAVEL IS NEEDED]' },
+  { q: 'Do I get a sketch if we meet over Zoom?', a: '[HOW THE SKETCH WORKS ON ZOOM, AND HOW IT REACHES YOU]' },
+  { q: 'What happens after the first consultation?', a: '[NEXT STEPS: QUOTE, DEPOSIT, TOILE, FITTINGS]' },
+];
 ---
 <BaseLayout title={title} description={description} jsonLd={[howTo]}>
   <div class="hero">
@@ -136,14 +149,17 @@ const howTo = {
     </ol>
   </section>
 
-  <section class="section timing">
-    <div class="container">
-      <div class="timing__panel section--deep">
-        <p class="eyebrow">Timing</p>
-        <p class="timing__text">
-          Allow {site.leadTime} before your wedding date for couture. Gowns from the Asheyori Eji
-          ready-to-wear collection can be made to measure in less.
-        </p>
+  <section class="section faq" aria-labelledby="faq-heading">
+    <div class="container faq__inner">
+      <p class="eyebrow">Practical questions</p>
+      <h2 id="faq-heading" class="faq__title">Before you book.</h2>
+      <div class="faq__list">
+        {faqs.map((f) => (
+          <details class="faq__item">
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
       </div>
     </div>
   </section>
@@ -184,10 +200,20 @@ const howTo = {
   .stage__text { margin: 0; }
 
   /* Timing note */
-  .timing { padding-block: 1rem 4rem; }
-  .timing__panel { border: 1px solid var(--line); padding: 1.5rem; }
-  .timing__panel .eyebrow { margin-bottom: 0.75rem; }
-  .timing__text { margin: 0; font-size: var(--text-sm); line-height: 1.7; }
+  .faq { padding-block: 1rem 4rem; }
+  .faq__inner { max-width: calc(var(--measure) + 2 * var(--gutter)); }
+  .faq__title { margin-bottom: 1.5rem; }
+  .faq__list { border-top: 1px solid var(--line); }
+  .faq__item { border-bottom: 1px solid var(--line); }
+  .faq__item summary {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem; min-height: 56px; padding-block: 0.75rem;
+    cursor: pointer; list-style: none; font-family: var(--font-serif); font-size: 1.125rem; color: var(--ink);
+  }
+  .faq__item summary::-webkit-details-marker { display: none; }
+  .faq__item summary::after { content: '+'; font-family: var(--font-sans); font-weight: 300; font-size: 1.5rem; flex: none; }
+  .faq__item[open] summary::after { content: '3'; }
+  .faq__item summary:focus-visible { outline: 2px solid var(--oxblood); outline-offset: 2px; }
+  .faq__item p { margin: 0 0 1.25rem; font-size: var(--text-sm); line-height: 1.7; }
 
   /* Desktop: image and text side by side, alternating per stage */
   @media (min-width: 900px) {
@@ -204,8 +230,7 @@ const howTo = {
     .stage__num { font-size: 0.75em; }
     .stage__text { font-size: var(--text-lg); line-height: 1.6; }
 
-    .timing { padding-block: 2rem 6rem; }
-    .timing__panel { max-width: calc(var(--measure) + 3rem); padding: 2rem 2.5rem; }
-    .timing__text { font-size: var(--text-base); }
+    .faq { padding-block: 2rem 6rem; }
+    .faq__item p { font-size: var(--text-base); }
   }
 </style>

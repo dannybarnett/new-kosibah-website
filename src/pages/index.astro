@@ -68,6 +68,7 @@ const steps = [
         <a class="btn btn--book" href="/book">Book a consultation</a>
         <a class="textlink" href="/gowns">See the gowns</a>
       </div>
+      <p class="hero__reassure">{site.reassurance}</p>
     </div>
   </section>
 
@@ -215,14 +216,16 @@ const steps = [
 <style>
   /* ---- Hero ---- */
   .hero { background: var(--chalk); }
-  .hero__media { aspect-ratio: 4 / 5; overflow: hidden; }
+  /* Phone: a shorter image so the headline, button and reassurance line sit near the first screen. */
+  .hero__media { aspect-ratio: 4 / 3; max-height: 42svh; width: 100%; overflow: hidden; }
   .hero__img { width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; }
-  .hero__text { padding: 2.5rem var(--gutter) 3rem; }
+  .hero__text { padding: 1.75rem var(--gutter) 3rem; }
   .hero__title { max-width: 12ch; }
   .hero__body { margin-bottom: 1.75rem; }
   .hero__actions { display: grid; gap: 0.75rem; }
   .hero__actions .btn { width: 100%; }
   .hero__actions .textlink { justify-self: start; }
+  .hero__reassure { margin: 1rem 0 0; font-size: var(--text-sm); color: var(--ink-mute); }
 
   /* ---- Manifesto ---- */
   .manifesto__inner p:last-child { margin-bottom: 0; }
@@ -312,7 +315,7 @@ const steps = [
   /* ---- Desktop ---- */
   @media (min-width: 900px) {
     .hero { display: grid; grid-template-columns: 1fr 1fr; }
-    .hero__media { aspect-ratio: auto; min-height: min(80vh, 760px); }
+    .hero__media { aspect-ratio: auto; max-height: none; min-height: min(80vh, 760px); }
     .hero__text {
       display: flex; flex-direction: column; justify-content: center;
       padding: 4rem clamp(2.5rem, 5vw, 5rem);

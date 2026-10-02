@@ -31,7 +31,7 @@ const steps = [
 ---
 <BaseLayout
   title="Book a consultation"
-  description="A private hour with Yemi Osunkoya at the Brooklyn atelier or over Zoom. No charge for the first conversation. Weekends and evenings available."
+  description="A private hour with Yemi Osunkoya at the Harlem atelier or over Zoom. No charge for the first conversation. Weekends and evenings available."
   minimal
 >
   <Fragment slot="head">
@@ -56,9 +56,9 @@ const steps = [
   <section class="section book">
     <div class="container book__grid">
       <div class="book__main">
-        <p class="eyebrow">Consultations · Brooklyn and Zoom</p>
+        <p class="eyebrow">Consultations · Harlem and Zoom</p>
         <h1>Book an hour with Yemi.</h1>
-        <p class="book__intro">A private consultation at the Brooklyn atelier, or over Zoom from wherever you are. Weekends and evenings available. There is no charge for the first conversation.</p>
+        <p class="book__intro">A private consultation at the Harlem atelier, or over Zoom from wherever you are. Weekends and evenings available. There is no charge for the first conversation.</p>
 
         <dl class="book__facts">
           <div><dt class="eyebrow">Investment</dt><dd>{site.investment}</dd></div>
@@ -172,7 +172,7 @@ const steps = [
     const reveal = (data: Record<string, string>) => {
       if (revealed) return;
       revealed = true;
-      const meeting = data.meeting === 'zoom' ? 'Over Zoom' : 'In person, Brooklyn';
+      const meeting = data.meeting === 'zoom' ? 'Over Zoom' : 'In person, Harlem';
       const label = step2.querySelector('[data-meeting-label]');
       if (label) label.textContent = meeting;
       step2.classList.add('is-open');

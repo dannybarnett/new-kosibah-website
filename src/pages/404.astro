@@ -1,0 +1,35 @@
+---
+/**
+ * Not found. Cloudflare Pages serves dist/404.html with a 404 status for any unknown URL,
+ * including old WordPress addresses that public/_redirects does not cover.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BookCta from '../components/BookCta.astro';
+import { nav } from '../lib/site';
+---
+<BaseLayout title="Page not found" description="This page has moved or no longer exists.">
+  <section class="section notfound">
+    <div class="container notfound__col">
+      <p class="eyebrow">Not found</p>
+      <h1>This page has moved, or never was.</h1>
+      <p>The Kosibah site has a new home. Everything is a click away from here.</p>
+      <ul class="notfound__links">
+        <li><a href="/">Home</a></li>
+        {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+      </ul>
+    </div>
+  </section>
+  <BookCta />
+</BaseLayout>
+
+<style>
+  .notfound { padding-block: 3rem 4rem; }
+  .notfound__col { max-width: calc(var(--measure) + 2 * var(--gutter)); }
+  .notfound__links { list-style: none; margin: 2rem 0 0; padding: 0; border-top: 1px solid var(--line); }
+  .notfound__links a {
+    display: flex; align-items: center; min-height: 52px; font-family: var(--font-serif); font-size: 1.375rem;
+    text-decoration: none; border-bottom: 1px solid var(--line);
+  }
+  .notfound__links a:hover { text-decoration: underline; }
+  @media (min-width: 768px) { .notfound { padding-block: 5rem 6rem; } }
+</style>

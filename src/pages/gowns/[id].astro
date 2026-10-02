@@ -1,7 +1,8 @@
 ---
 /**
- * One gown. Lead image, the other angles, the notes, a spec table and an
- * Enquire button that pre-fills the booking form with the gown's name.
+ * One gown. Lead image, then the name, notes, spec table and a booking button that
+ * pre-fills the form with the gown's name, then the other angles. On desktop the
+ * images sit left and the text right, sticky.
  */
 import { getCollection, getEntry, render } from 'astro:content';
 import { Image, getImage } from 'astro:assets';
@@ -41,6 +42,7 @@ const specs = [
   { term: 'Silhouette', value: silhouette },
   { term: 'Made', value: made },
   { term: 'Lead time', value: site.leadTime },
+  { term: 'Investment', value: site.investment },
 ].filter((s): s is { term: string; value: string } => Boolean(s.value));
 
 const note =
@@ -83,46 +85,21 @@ const product = {
 <BaseLayout title={name} description={description} image={og.src} jsonLd={[product]}>
   <article class="gown">
     <div class="container gown__layout">
-      <div class="gown__images">
-        <figure class="gown__lead">
-          <Image
-            src={lead.src}
-            alt={lead.alt}
-            width={1120}
-            height={1400}
-            widths={[480, 640, 800, 933]}
-            sizes="(min-width: 1200px) 660px, (min-width: 900px) 56vw, 100vw"
-            fit="cover"
-            position="top"
-            loading="eager"
-            fetchpriority="high"
-          />
-          {lead.angle && <figcaption class="eyebrow gown__angle">{lead.angle}</figcaption>}
-        </figure>
-
-        {angles.length > 0 && (
-          <ul class="gown__angles" aria-label={`${name}, other angles`}>
-            {angles.map((img) => (
-              <li>
-                <figure>
-                  <Image
-                    src={img.src}
-                    alt={img.alt}
-                    width={800}
-                    height={1000}
-                    widths={[320, 480, 640, 800]}
-                    sizes="(min-width: 1200px) 320px, (min-width: 900px) 27vw, 72vw"
-                    fit="cover"
-                    position="top"
-                    loading="lazy"
-                  />
-                  {img.angle && <figcaption class="eyebrow gown__angle">{img.angle}</figcaption>}
-                </figure>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <figure class="gown__lead">
+        <Image
+          src={lead.src}
+          alt={lead.alt}
+          width={1120}
+          height={1400}
+          widths={[480, 640, 800, 933]}
+          sizes="(min-width: 1200px) 660px, (min-width: 900px) 56vw, 100vw"
+          fit="cover"
+          position="top"
+          loading="eager"
+          fetchpriority="high"
+        />
+        {lead.angle && <figcaption class="eyebrow gown__angle">{lead.angle}</figcaption>}
+      </figure>
 
       <div class="gown__text">
         <p class="eyebrow gown__eyebrow">{eyebrow}</p>
@@ -142,9 +119,33 @@ const product = {
 
         <p class="gown__note">{note}</p>
 
-        <a class="btn btn--book btn--block gown__enquire" href={enquireHref}>Enquire about {name}</a>
+        <a class="btn btn--book btn--block gown__enquire" href={enquireHref}>Discuss {name} with Yemi</a>
+        <p class="gown__enquire-note">Opens the booking for a complimentary first consultation, with {name} noted.</p>
         <a class="textlink" href={`/gowns?collection=${collection.id}`}>The full {collection.data.name} collection</a>
       </div>
+
+      {angles.length > 0 && (
+        <ul class="gown__angles" aria-label={`${name}, other angles`}>
+          {angles.map((img) => (
+            <li>
+              <figure>
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  width={800}
+                  height={1000}
+                  widths={[320, 480, 640, 800]}
+                  sizes="(min-width: 1200px) 320px, (min-width: 900px) 27vw, 72vw"
+                  fit="cover"
+                  position="top"
+                  loading="lazy"
+                />
+                {img.angle && <figcaption class="eyebrow gown__angle">{img.angle}</figcaption>}
+              </figure>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
 
     {siblings.length > 0 && (
@@ -168,7 +169,6 @@ const product = {
 
 <style>
   .gown__layout { padding-inline: 0; }
-  .gown__images { display: grid; gap: 1rem; }
   .gown__lead { margin: 0; }
   .gown__lead img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: top; background: var(--chalk-deep); }
   .gown__angle { margin: 0.5rem 0 0; padding-inline: var(--gutter); }
@@ -185,7 +185,7 @@ const product = {
   .gown__angles img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: top; background: var(--chalk-deep); }
   .gown__angles .gown__angle { padding-inline: 0; }
 
-  .gown__text { padding: 2.5rem var(--gutter) 3rem; }
+  .gown__text { padding: 2rem var(--gutter) 2.5rem; }
   .gown__eyebrow { margin-bottom: 1rem; }
   .gown__name { font-size: var(--display-lg); margin-bottom: 1rem; }
   .gown__body :global(p:last-child) { margin-bottom: 0; }
@@ -200,7 +200,9 @@ const product = {
   .gown__spec dd { margin: 0; color: var(--ink-soft); font-size: var(--text-sm); }
 
   .gown__note { margin-bottom: 2rem; }
-  .gown__enquire { margin-bottom: 1.5rem; }
+  .gown__enquire { margin-bottom: 0.75rem; }
+  .gown__enquire-note { font-size: var(--text-sm); margin-bottom: 1.5rem; }
+  .gown__angles { margin-bottom: 3rem; }
 
   .gown__also { border-top: 1px solid var(--line); padding-block: 2.5rem 3rem; }
   .gown__also-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
@@ -210,7 +212,7 @@ const product = {
     .gown__angle { padding-inline: 0; }
     .gown__angles { padding: 0; overflow: visible; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
     .gown__angles li { flex: none; }
-    .gown__images { gap: 1.5rem; padding-top: 2rem; }
+    .gown__lead { padding-top: 2rem; }
     .gown__text { padding-inline: 0; }
     .gown__also { padding-block: 4rem; }
     .gown__also-grid { gap: 1.5rem; max-width: 720px; }
@@ -219,11 +221,12 @@ const product = {
   /* Desktop: images left, text right and sticky */
   @media (min-width: 900px) {
     .gown__layout {
-      display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 4rem; align-items: start;
-      padding-block: 3rem 4rem;
+      display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: 4rem; row-gap: 1.5rem;
+      align-items: start; padding-block: 3rem 4rem;
     }
-    .gown__images { padding-top: 0; }
-    .gown__text { position: sticky; top: calc(72px + 2rem); padding-block: 0; }
+    .gown__lead { grid-column: 1; grid-row: 1; padding-top: 0; }
+    .gown__angles { grid-column: 1; grid-row: 2; margin-bottom: 0; }
+    .gown__text { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: calc(72px + 2rem); padding-block: 0; }
     .gown__name { font-size: var(--display-md); }
   }
   @media (min-width: 1100px) {

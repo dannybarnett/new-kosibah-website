@@ -9,14 +9,19 @@
  *   PUBLIC_META_PIXEL_ID  Meta pixel id. The pixel renders on this page only, and only when set.
  */
 import { Picture } from 'astro:assets';
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import BookForm from '../components/BookForm.astro';
 import BookScheduler from '../components/BookScheduler.astro';
 import BookAside from '../components/BookAside.astro';
 import yemi from '../assets/site/yemi.jpg';
+import { site } from '../lib/site';
 
 const CAL_LINK: string = import.meta.env.PUBLIC_CAL_LINK ?? 'kosibah/consultation';
 const PIXEL_ID: string | undefined = import.meta.env.PUBLIC_META_PIXEL_ID || undefined;
+
+/* One bride's words beside the form: the first featured story. */
+const bride = (await getCollection('brides', ({ data }) => data.featured)).sort((a, b) => a.data.order - b.data.order)[0];
 
 const steps = [
   'Tell us about the day. Yemi listens first.',
@@ -26,7 +31,7 @@ const steps = [
 ---
 <BaseLayout
   title="Book a consultation"
-  description="A private hour with Yemi Osunkoya at the Brooklyn atelier or over Zoom. No charge for the first conversation. Weekends and evenings available."
+  description="A private hour with Yemi Osunkoya at the Harlem atelier or over Zoom. No charge for the first conversation. Weekends and evenings available."
   minimal
 >
   <Fragment slot="head">
@@ -48,40 +53,56 @@ const steps = [
     <link rel="preconnect" href="https://app.cal.com" />
   </Fragment>
 
-  <div class="hero">
-    <Picture
-      src={yemi}
-      alt="Yemi Osunkoya at the atelier, a bride in a beaded gown behind him"
-      width={933}
-      height={840}
-      fit="cover"
-      position="top"
-      layout="full-width"
-      widths={[390, 640, 780, 1200]}
-      sizes="(min-width: 1200px) 1200px, 100vw"
-      formats={['avif', 'webp']}
-      loading="eager"
-      fetchpriority="high"
-    />
-  </div>
-
   <section class="section book">
-    <div class="container book__col">
-      <p class="eyebrow">Consultations · Brooklyn and Zoom</p>
-      <h1>Book an hour with Yemi.</h1>
-      <p class="book__intro">A private consultation at the Brooklyn atelier, or over Zoom from wherever you are. Weekends and evenings available. There is no charge for the first conversation.</p>
+    <div class="container book__grid">
+      <div class="book__main">
+        <p class="eyebrow">Consultations · Harlem and Zoom</p>
+        <h1>Book an hour with Yemi.</h1>
+        <p class="book__intro">A private consultation at the Harlem atelier, or over Zoom from wherever you are. Weekends and evenings available. There is no charge for the first conversation.</p>
 
-      <ol class="steps" aria-label="What happens in a consultation">
-        {steps.map((s, i) => (
-          <li><span class="steps__n" aria-hidden="true">{i + 1}</span><span>{s}</span></li>
-        ))}
-      </ol>
+        <dl class="book__facts">
+          <div><dt class="eyebrow">Investment</dt><dd>{site.investment}</dd></div>
+          <div><dt class="eyebrow">Lead time</dt><dd>{site.leadTime}</dd></div>
+        </dl>
+        <p class="book__sooner">Wedding sooner than that? Say so in the notes and the atelier will tell you what is possible.</p>
 
-      <BookForm />
+        <p class="book__sequence">Your details first, then you choose a time. Your consultation is booked once you have picked a time and the confirmation email arrives.</p>
 
-      <BookScheduler calLink={CAL_LINK} />
+        <BookForm />
 
-      <BookAside />
+        <BookScheduler calLink={CAL_LINK} />
+      </div>
+
+      <div class="book__side">
+        <Picture
+          class="book__portrait"
+          src={yemi}
+          alt="Yemi Osunkoya at the atelier, a bride in a beaded gown behind him"
+          widths={[390, 640, 780]}
+          sizes="(min-width: 900px) 400px, 100vw"
+          formats={['avif', 'webp']}
+          loading="lazy"
+        />
+
+        <h2 class="eyebrow book__side-head">What happens in the hour</h2>
+        <ol class="steps" aria-label="What happens in a consultation">
+          {steps.map((s, i) => (
+            <li><span class="steps__n" aria-hidden="true">{i + 1}</span><span>{s}</span></li>
+          ))}
+        </ol>
+
+        {bride?.data.quote && (
+          <figure class="book__voice">
+            <blockquote class="quote">{bride.data.quote}</blockquote>
+            <figcaption>
+              {bride.data.name}, {bride.data.place}.
+              <a class="textlink" href={`/real-brides/${bride.id}`}>Read {bride.data.name}'s story</a>
+            </figcaption>
+          </figure>
+        )}
+
+        <BookAside />
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -151,7 +172,7 @@ const steps = [
     const reveal = (data: Record<string, string>) => {
       if (revealed) return;
       revealed = true;
-      const meeting = data.meeting === 'zoom' ? 'Over Zoom' : 'In person, Brooklyn';
+      const meeting = data.meeting === 'zoom' ? 'Over Zoom' : 'In person, Harlem';
       const label = step2.querySelector('[data-meeting-label]');
       if (label) label.textContent = meeting;
       step2.classList.add('is-open');
@@ -251,17 +272,32 @@ const steps = [
 </script>
 
 <style>
-  .hero { width: 100%; max-width: var(--max); margin-inline: auto; max-height: 70vh; overflow: hidden; background: var(--chalk-deep); }
-  .hero :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: top; }
-  @media (min-width: 900px) { .hero { height: clamp(360px, 56vh, 620px); } }
-
-  .book { padding-block: 2.5rem 3.5rem; }
-  .book__col { max-width: calc(var(--measure) + 2 * var(--gutter)); }
+  .book { padding-block: 2rem 3.5rem; }
+  .book__grid { display: grid; gap: 3rem; }
+  .book__main, .book__side { max-width: var(--measure); min-width: 0; }
   .book h1 { font-size: var(--display-md); }
-  .book__intro { margin-bottom: 2rem; }
+  .book__intro { margin-bottom: 1.5rem; }
 
-  .steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .book__facts { margin: 0 0 0.75rem; border-top: 1px solid var(--line); }
+  .book__facts > div { display: grid; grid-template-columns: minmax(6.5rem, 1fr) 2fr; gap: 1rem; align-items: baseline; padding-block: 0.75rem; border-bottom: 1px solid var(--line); }
+  .book__facts dt { margin: 0; }
+  .book__facts dd { margin: 0; color: var(--ink-soft); font-size: var(--text-sm); }
+  .book__sooner, .book__sequence { font-size: var(--text-sm); }
+  .book__sequence { margin: 1.25rem 0 0; color: var(--ink); }
+
+  .book__side :global(.book__portrait) { display: block; width: 100%; height: auto; background: var(--chalk-deep); margin-bottom: 2rem; }
+  .book__side-head { margin: 0 0 0.75rem; }
+  .steps { list-style: none; margin: 0 0 2.5rem; padding: 0; border-top: 1px solid var(--line); }
   .steps li { display: flex; gap: 1.25rem; align-items: baseline; padding: 0.9rem 0; border-bottom: 1px solid var(--line); color: var(--ink-soft); font-size: var(--text-sm); }
   .steps__n { font-family: var(--font-serif); font-size: 1.125rem; color: var(--ink); flex: none; width: 1ch; }
-  @media (min-width: 768px) { .book { padding-block: 3.5rem 5rem; } .steps li { font-size: var(--text-base); } }
+
+  .book__voice { margin: 0 0 2.5rem; }
+  .book__voice blockquote { margin: 0 0 1rem; }
+  .book__voice figcaption { font-size: var(--text-sm); color: var(--ink-soft); display: grid; gap: 0.5rem; justify-items: start; }
+
+  @media (min-width: 768px) { .book { padding-block: 3rem 5rem; } }
+  @media (min-width: 900px) {
+    .book__grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 5rem; align-items: start; }
+    .book__side { padding-top: 0.5rem; }
+  }
 </style>

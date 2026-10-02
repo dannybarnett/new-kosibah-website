@@ -1,6 +1,6 @@
 ---
 /**
- * Below the booking form: "Featured in" press row and the phone / Instagram line.
+ * Beside the booking form: "Featured in" press row and the phone, email and Instagram line.
  */
 import { site } from '../lib/site';
 ---
@@ -12,8 +12,9 @@ import { site } from '../lib/site';
     </ul>
   </div>
   <p class="baside__talk">
-    Prefer to talk? <a href={site.phoneHref}>{site.phone}</a>, {site.hours}.
-    Or message the atelier on Instagram, <a href={site.instagramUrl} rel="me noopener">{site.instagram}</a>.
+    Prefer to talk first? Call <a href={site.phoneHref}>{site.phone}</a>, {site.hours},
+    or email <a href={`mailto:${site.email}`}>{site.email}</a>.
+    You can also message the atelier on Instagram, <a href={site.instagramUrl} rel="me noopener">{site.instagram}</a>.
   </p>
 </aside>
 

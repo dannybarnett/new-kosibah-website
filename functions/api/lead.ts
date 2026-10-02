@@ -70,7 +70,7 @@ async function sha256(value: string) {
 
 async function emailAtelier(env: Env, lead: Lead) {
   if (!env.RESEND_API_KEY || !env.LEAD_TO_EMAIL || !env.LEAD_FROM_EMAIL) return 'skipped';
-  const meeting = lead.meeting === 'zoom' ? 'Over Zoom' : 'In person, Brooklyn';
+  const meeting = lead.meeting === 'zoom' ? 'Over Zoom' : 'In person, Harlem';
   const lines = [
     `New consultation enquiry from ${lead.firstName}.`,
     '',

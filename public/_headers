@@ -4,3 +4,9 @@
   X-Frame-Options: SAMEORIGIN
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Keep the pages.dev address out of search results; kosibah.com is the real home.
+# Preview deployments are already noindexed by Cloudflare. Safe to keep after launch:
+# this rule only matches the pages.dev host, never kosibah.com.
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
